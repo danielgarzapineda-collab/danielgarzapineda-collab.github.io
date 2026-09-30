@@ -1410,10 +1410,23 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
         var b = el('button', 'chip', c[1] + ' · ' + c[0]); b.type = 'button'; b.addEventListener('click', function () { fTo.set(c[0]); }); chips.appendChild(b);
       });
       body.appendChild(chips);
+      var kind = el('div', 'lg-seg'), bRound = el('button', null, 'Round trip'), bOne = el('button', null, 'One way'); f.round = true;
+      [bRound, bOne].forEach(function (b) { b.type = 'button'; kind.appendChild(b); });
+      body.appendChild(kind);
       var g2 = el('div', 'fgrid');
       var iDep = inp('date', ''), iRet = inp('date', ''); iDep.min = S.today; iRet.min = S.today;
-      iDep.addEventListener('change', function () { iRet.min = iDep.value || S.today; });
-      g2.appendChild(box('Leave', iDep)); g2.appendChild(box('Return (optional)', iRet)); body.appendChild(g2);
+      var retBox = box('Return', iRet);
+      function paintKind() { bRound.setAttribute('aria-pressed', String(f.round)); bOne.setAttribute('aria-pressed', String(!f.round)); retBox.style.visibility = f.round ? '' : 'hidden'; if (!f.round) iRet.value = ''; }
+      bRound.addEventListener('click', function () { f.round = true; paintKind(); if (iDep.value && !iRet.value) openPicker(iRet); });
+      bOne.addEventListener('click', function () { f.round = false; paintKind(); });
+      function openPicker(i) { i.focus(); try { if (i.showPicker) i.showPicker(); } catch (e) {} }
+      iDep.addEventListener('change', function () {
+        iRet.min = iDep.value || S.today;
+        if (iRet.value && iDep.value && iRet.value < iDep.value) iRet.value = '';
+        /* Round trip: go straight to the return date. */
+        if (f.round && iDep.value && !iRet.value) setTimeout(function () { openPicker(iRet); }, 60);
+      });
+      g2.appendChild(box('Leave', iDep)); g2.appendChild(retBox); body.appendChild(g2); paintKind();
       body.appendChild(el('span', 'label', 'Who is going'));
       var ppl = el('div', 'people'); ppl.style.flexWrap = 'wrap';
       TRAVELERS.forEach(function (id) {
@@ -1445,6 +1458,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
         if (!B) { msg.textContent = fTo.hint() || 'Where to?'; fTo.focus(); return; }
         if (A.code === B.code) { msg.textContent = 'From and To are the same airport.'; fTo.focus(); return; }
         if (!iDep.value) { msg.textContent = 'Pick a leave date.'; iDep.focus(); return; }
+        if (f.round && !iRet.value) { msg.textContent = 'Pick a return date, or switch to one way.'; openPicker(iRet); return; }
         if (iRet.value && iRet.value < iDep.value) { msg.textContent = 'The return is before the leave date.'; iRet.focus(); return; }
         if (!f.who.length) { msg.textContent = 'Pick who is going.'; return; }
         var id = 't-' + Date.now().toString(36);
