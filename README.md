@@ -1,2 +1,3 @@
-# danielgarzapineda-collab.github.io
-Personal Agent
+# Colibrí
+
+The Garza family app (demo with sample data). Host these files, open the site in Chrome on Android, then install it.
