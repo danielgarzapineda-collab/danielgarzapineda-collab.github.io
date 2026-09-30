@@ -1,7 +1,7 @@
 {
  "name": "Colibrí",
  "short_name": "Colibrí",
- "description": "The Garza family app: calendar, money, kids and more.",
+ "description": "A family app: calendar, money, kids and more.",
  "start_url": "./",
  "scope": "./",
  "id": "./",
