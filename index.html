@@ -307,6 +307,16 @@ body.asking { padding-block-end: 190px; }
 .kid-balance .row1 { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; font-weight: 700; }
 .split { display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: var(--sunk); }
 .split i { display: block; height: 100%; }
+.chore-row { display: flex; gap: 12px; align-items: center; width: 100%; padding: 12px 14px; border: 0; border-top: 1px solid var(--line-soft); background: none; text-align: left; color: var(--ink); cursor: pointer; font: inherit; min-height: 64px; }
+.chore-row:first-child { border-top: 0; }
+.chore-row:disabled { cursor: default; opacity: 1; }
+.chore-row .ic { width: 40px; height: 40px; border-radius: 12px; background: var(--c-chores-soft); color: var(--c-chores); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.chore-row.done .ic { background: var(--teal); color: var(--on-teal); }
+.chore-row .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.chore-row .main b { font-size: 15px; } .chore-row .main span { font-size: 12px; color: var(--muted); }
+.chore-row.done .main b { text-decoration: line-through; text-decoration-color: var(--muted); }
+.chore-row.wait .main span { color: var(--amber-ink); font-weight: 600; }
+.chore-row .go { font-size: 13px; font-weight: 700; padding: 8px 12px; border-radius: 12px; background: var(--c-chores); color: var(--surface); white-space: nowrap; }
 .acts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .act { border: 0; border-radius: 18px; padding: 12px; min-height: 96px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; text-align: left; cursor: pointer; background: var(--cs); color: var(--ink); min-width: 0; }
 .act .ic { width: 38px; height: 38px; border-radius: 12px; background: var(--surface); color: var(--cc); display: flex; align-items: center; justify-content: center; }
@@ -324,6 +334,15 @@ body.asking { padding-block-end: 190px; }
 .goal .n { font-size: 13px; color: var(--muted); font-weight: 600; margin-top: 4px; font-variant-numeric: tabular-nums; }
 .q-row { display: flex; gap: 10px; align-items: center; padding: 12px 14px; border-top: 1px solid var(--line-soft); }
 .q-row:first-child { border-top: 0; }
+.q-photo { width: 44px; height: 44px; border-radius: 10px; overflow: hidden; padding: 0; border: 1px solid var(--line); flex-shrink: 0; cursor: pointer; background: var(--sunk); }
+.q-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.q-row .main span.q-check { font-weight: 600; } .q-check.ok { color: var(--teal) !important; } .q-check.hmm { color: var(--amber-ink) !important; }
+.photo-box { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.photo-box:empty { display: none; }
+.photo-box img { max-width: 100%; max-height: 240px; border-radius: 16px; }
+.photo-note { font-size: 15px; font-weight: 600; text-align: center; color: var(--muted); }
+.photo-note.ok { color: var(--teal); } .photo-note.hmm { color: var(--amber-ink); }
+.photo-big { width: 100%; max-height: 60vh; object-fit: contain; border-radius: 16px; background: var(--sunk); }
 .q-row .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .q-row .main b { font-size: 14px; }
 .q-row .main span { font-size: 12px; color: var(--muted); }
@@ -392,6 +411,8 @@ body.kidmode .kid-hero .name { font-size: 28px; }
     <div class="kid-hero" id="kid-hero"></div>
     <div id="kid-timer"></div>
     <div class="kid-balance" id="kid-balance"></div>
+    <div class="sec"><h2>Today's chores</h2><span class="aside" id="kid-chores-count"></span></div>
+    <div class="card" id="kid-chores"></div>
     <div class="sec"><h2>I did it!</h2><span class="aside" id="kid-acts-hint">Tap what you did</span></div>
     <div class="acts" id="kid-acts"></div>
     <div class="sec"><h2>Spend feathers</h2><span class="aside" id="kid-cap"></span></div>
@@ -421,7 +442,6 @@ body.kidmode .kid-hero .name { font-size: 28px; }
     <div class="sec"><h2>Family</h2></div>
     <div class="card">
       <button class="list-btn" type="button" id="open-avatars"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg><span>Avatars<small>Pick one for each of you and the kids</small></span></button>
-      <a class="list-btn" href="https://claude.ai" target="_blank" rel="noopener"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3 8-8"></path><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"></path></svg><span>Chores<small>Opens the Chores app</small></span></a>
       <button class="list-btn" type="button" id="open-ledger"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"></path></svg><span>Household ledger<small>Every purchase, by budget line</small></span></button>
     </div>
     <p class="note">Prototype. Calendar and bills are live; budget and points are copied from your main Colibrí app.</p>
@@ -711,9 +731,9 @@ if (typeof module !== 'undefined') module.exports = { normEvents: normEvents, ev
       { code: 'AMEX', title: 'Enroll in the coffee credit', date: null, note: 'Sample open item.' }
     ], programs: [] };
     s['avatars/family'] = { daniel: 'monarch', andrea: 'cardinal', nicolas: 'fox', dany: 'owl', montse: 'axolotl', motion: true };
-    var A = { outside: [10, 30, 'Played outside 30 min', 'outside'], read: [8, 20, 'Read for 20 minutes', 'read'], bed: [3, 0, 'Made my bed', 'chores'], table: [4, 0, 'Cleared the table', 'chores'], room: [6, 0, 'Tidied my room', 'chores'], helped: [6, 0, 'Helped someone', 'help'], cook: [6, 0, 'Helped cook dinner', 'help'], homework: [6, 0, 'Homework, no reminders', 'learn'], practice: [8, 20, 'Practiced a sport or instrument', 'learn'], kind: [5, 0, 'Did something kind', 'kind'] };
-    var logs = [['dany', -3, 'outside', 'approved'], ['dany', -3, 'read', 'approved'], ['dany', -3, 'bed', 'approved'], ['dany', -2, 'outside', 'approved'], ['dany', -2, 'homework', 'approved'], ['dany', -1, 'read', 'approved'], ['dany', -1, 'practice', 'approved'], ['dany', -1, 'table', 'approved'], ['dany', 0, 'bed', 'approved'], ['dany', 0, 'read', 'approved'],
-      ['montse', -2, 'bed', 'approved'], ['montse', -2, 'helped', 'approved'], ['montse', -1, 'outside', 'approved'], ['montse', -1, 'kind', 'approved'], ['montse', 0, 'bed', 'approved'], ['montse', 0, 'outside', 'pending'], ['montse', 0, 'room', 'pending'],
+    var A = { outside: [10, 30, 'Played outside 30 min', 'outside'], read: [8, 20, 'Read for 20 minutes', 'read'], bed: [3, 0, 'Make your bed', 'chores'], toys: [3, 0, 'Put toys away', 'chores'], table: [4, 0, 'Set and clear the table', 'chores'], room: [6, 0, 'Tidy your room', 'chores'], dishes: [6, 0, 'Unload the dishwasher', 'chores'], helped: [6, 0, 'Helped someone', 'help'], cook: [6, 0, 'Helped cook dinner', 'help'], homework: [6, 0, 'Homework, no reminders', 'learn'], practice: [8, 20, 'Practiced a sport or instrument', 'learn'], kind: [5, 0, 'Did something kind', 'kind'] };
+    var logs = [['dany', -3, 'outside', 'approved'], ['dany', -3, 'read', 'approved'], ['dany', -3, 'room', 'approved'], ['dany', -2, 'outside', 'approved'], ['dany', -2, 'homework', 'approved'], ['dany', -1, 'read', 'approved'], ['dany', -1, 'practice', 'approved'], ['dany', -1, 'table', 'approved'], ['dany', 0, 'dishes', 'approved'], ['dany', 0, 'read', 'approved'],
+      ['montse', -2, 'bed', 'approved'], ['montse', -2, 'helped', 'approved'], ['montse', -1, 'outside', 'approved'], ['montse', -1, 'kind', 'approved'], ['montse', 0, 'bed', 'approved'], ['montse', 0, 'outside', 'pending'], ['montse', 0, 'toys', 'pending'],
       ['nicolas', -2, 'homework', 'approved'], ['nicolas', -2, 'practice', 'approved'], ['nicolas', -1, 'cook', 'approved'], ['nicolas', -1, 'homework', 'approved'], ['nicolas', 0, 'practice', 'approved']];
     logs.forEach(function (l, i) { var a = A[l[2]], day = addDays(t, l[1]); s['kids_log/ex-l-' + i] = { kid: l[0], activity: l[2], label: a[2], cat: a[3], feathers: a[0], green: a[1], day: day, at: iso(day, String(8 + i % 10).padStart(2, '0') + ':00'), status: l[3], by: l[3] === 'pending' ? l[0] : 'daniel', example: true }; });
     var reds = [['dany', -2, 'tab15', '15 min tablet', 'screen', 10, 15, 'tablet', 'done'], ['dany', -1, 'tv30', '30 min TV', 'screen', 18, 30, 'tv', 'done'], ['dany', 0, 'tab15', '15 min tablet', 'screen', 10, 15, 'tablet', 'pending'], ['montse', -1, 'late', 'Stay up 15 min later', 'experience', 15, 0, 'moon', 'approved'], ['nicolas', -2, 'drive', 'Driving practice with Papá', 'experience', 20, 0, 'car', 'approved']];
@@ -1345,7 +1365,7 @@ if (typeof module !== 'undefined') module.exports = { normEvents: normEvents, ev
     openSheet(function body0(body) {
       function paint() {
         clear(body);
-        var h = el('div', 'sh-head'); var m = el('div', 'main'); m.appendChild(el('h2', null, 'Avatars')); m.appendChild(el('span', null, 'Kids’ avatars show on the kitchen screen and in Chores.')); h.appendChild(m);
+        var h = el('div', 'sh-head'); var m = el('div', 'main'); m.appendChild(el('h2', null, 'Avatars')); m.appendChild(el('span', null, 'Kids’ avatars show on the kitchen screen and in Kids.')); h.appendChild(m);
         var x = el('button', 'x'); x.type = 'button'; x.setAttribute('aria-label', 'Close'); html(x, ICON.x); x.addEventListener('click', closeSheet); h.appendChild(x); body.appendChild(h);
         var ppl = el('div', 'people');
         FAMILY.forEach(function (p) { var b = el('button', 'person', p.label); b.type = 'button'; var on = p.id === who; b.setAttribute('aria-pressed', on ? 'true' : 'false'); if (on) b.style.background = p.color; b.addEventListener('click', function () { who = p.id; paint(); }); ppl.appendChild(b); });
@@ -1403,9 +1423,16 @@ if (typeof module !== 'undefined') module.exports = { normEvents: normEvents, ev
     activities: [
       { id: 'outside', label: 'Played outside 30 min', cat: 'outside', feathers: 10, green: 30 },
       { id: 'read', label: 'Read for 20 minutes', cat: 'read', feathers: 8, green: 20 },
-      { id: 'bed', label: 'Made my bed', cat: 'chores', feathers: 3 },
-      { id: 'table', label: 'Cleared the table', cat: 'chores', feathers: 4 },
-      { id: 'room', label: 'Tidied my room', cat: 'chores', feathers: 6 },
+      { id: 'bed', label: 'Make your bed', cat: 'chores', feathers: 3, chore: true, kids: ['montse'], checklist: 'Blanket pulled up over the bed and the pillow at the top. It does not need to be perfect.' },
+      { id: 'toys', label: 'Put toys away', cat: 'chores', feathers: 3, chore: true, kids: ['montse'], checklist: 'Most toys are off the floor and back in their bins or on shelves.' },
+      { id: 'hamper', label: 'Clothes in the hamper', cat: 'chores', feathers: 3, chore: true, kids: ['montse'], checklist: 'No dirty clothes on the floor; they are in the hamper.' },
+      { id: 'room', label: 'Tidy your room', cat: 'chores', feathers: 6, chore: true, kids: ['dany'], checklist: 'Floor clear, bed made, desk tidy, clothes put away.' },
+      { id: 'dishes', label: 'Unload the dishwasher', cat: 'chores', feathers: 6, chore: true, kids: ['dany'], checklist: 'Dishwasher racks are empty and clean dishes are put away.' },
+      { id: 'laundry', label: 'Fold your laundry', cat: 'chores', feathers: 6, chore: true, kids: ['dany'], days: [6], checklist: 'Clothes folded or hung up, laundry basket empty.' },
+      { id: 'trash', label: 'Trash and recycling out', cat: 'chores', feathers: 8, chore: true, kids: ['nicolas'], days: [1], checklist: 'Trash and recycling bins at the curb with lids closed.' },
+      { id: 'bathroom', label: 'Clean the bathroom', cat: 'chores', feathers: 10, chore: true, kids: ['nicolas'], days: [6], checklist: 'Sink and counter wiped, toilet clean, mirror clear, towels hung up.' },
+      { id: 'table', label: 'Set and clear the table', cat: 'chores', feathers: 4, chore: true, rotate: ['nicolas', 'dany', 'montse'], checklist: 'Table set before dinner and cleared after.' },
+      { id: 'extra', label: 'Did an extra chore', cat: 'chores', feathers: 4 },
       { id: 'helped', label: 'Helped someone', cat: 'help', feathers: 6 },
       { id: 'cook', label: 'Helped cook dinner', cat: 'help', feathers: 6 },
       { id: 'homework', label: 'Homework, no reminders', cat: 'learn', feathers: 6 },
@@ -1425,6 +1452,8 @@ if (typeof module !== 'undefined') module.exports = { normEvents: normEvents, ev
       { id: 'friend', label: 'A friend comes over', type: 'experience', cost: 60, art: 'friends' }
     ],
     outsideFirst: true,
+    photoChores: false,
+    v: 2,
     goal: { label: 'Family day at Green Lakes', target: 500, since: '2026-09-27' }
   };
   var CAT = {
@@ -1449,7 +1478,25 @@ if (typeof module !== 'undefined') module.exports = { normEvents: normEvents, ev
   };
   var ART_BG = { tablet: 'var(--c-read-soft)', tv: 'var(--c-learn-soft)', game: 'var(--c-help-soft)', bike: 'var(--c-outside-soft)', dinner: 'var(--c-make-soft)', bake: 'var(--c-kind-soft)', moon: 'var(--c-learn-soft)', car: 'var(--c-kind-soft)', friends: 'var(--c-make-soft)' };
   var FEATHER = '<svg class="feather" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 3.5C13 3.5 7.5 8.5 6.6 15.6L4 19.6l1.2.8 2.3-3.4c7.2-.9 13-6.3 13-13.5z"/><path d="M8.6 15.4l6.8-6.8" stroke="#FFFFFF" stroke-opacity=".55" stroke-width="1.2"/></svg>';
-  function kc() { return S.kconf || KIDS_DEFAULT; }
+  var kcMemo = { src: null, out: null };
+  function kc() {
+    var c = S.kconf; if (!c) return KIDS_DEFAULT;
+    if (c.v >= 2) return c;
+    if (kcMemo.src === c) return kcMemo.out;
+    /* Saved before chores moved into feathers: keep their values and limits, add the family chore list. */
+    var saved = {}; (c.activities || []).forEach(function (a) { saved[a.id] = a; });
+    var acts = KIDS_DEFAULT.activities.map(function (a) { var o = JSON.parse(JSON.stringify(a)); if (!a.chore && saved[a.id]) o.feathers = saved[a.id].feathers; return o; });
+    var out = Object.assign({}, KIDS_DEFAULT, c, { activities: acts, v: 2 });
+    kcMemo = { src: c, out: out }; return out;
+  }
+  function dayIndex(day) { return Math.round(Date.parse(day + 'T00:00:00Z') / 864e5); }
+  function choreFor(a, kid, day) {
+    if (!a.chore) return false;
+    if (a.days && a.days.indexOf(new Date(day + 'T12:00:00Z').getUTCDay()) < 0) return false;
+    if (a.rotate && a.rotate.length) { var n = a.rotate.length; return a.rotate[((dayIndex(day) % n) + n) % n] === kid; }
+    return !a.kids || a.kids.indexOf(kid) >= 0;
+  }
+  function choresToday(kid) { return kc().activities.filter(function (a) { return choreFor(a, kid, S.today); }); }
   function kidOf(id) { return kc().kids.filter(function (k) { return k.id === id; })[0] || kc().kids[0]; }
   function isWeekend(day) { var w = new Date(day + 'T12:00:00Z').getUTCDay(); return w === 0 || w === 6; }
   function kstats(kid) {
@@ -1528,9 +1575,28 @@ if (typeof module !== 'undefined') module.exports = { normEvents: normEvents, ev
     bb.appendChild(sp);
     bb.appendChild(el('span', 'settled', st.greenT >= st.screenT ? 'More green than screen today. Nice balance.' : 'Screen is ahead of green today. Time for something outside?'));
 
+    var cl = $('kid-chores'); clear(cl);
+    var todays = choresToday(kid), doneN = 0;
+    todays.forEach(function (a) {
+      var logs = S.klog.filter(function (l) { return l.kid === kid && l.activity === a.id && l.day === S.today && l.status !== 'rejected'; });
+      var state = logs.some(function (l) { return l.status === 'approved'; }) ? 'done' : logs.length ? 'wait' : 'todo';
+      if (state === 'done') doneN++;
+      var row = el('button', 'chore-row ' + state); row.type = 'button';
+      var ic = el('span', 'ic'); html(ic, state === 'done' ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7"/></svg>' : catSvg('chores')); row.appendChild(ic);
+      var m = el('span', 'main'); m.appendChild(el('b', null, a.label));
+      m.appendChild(el('span', null, state === 'done' ? 'Done · +' + a.feathers + ' feathers' : state === 'wait' ? 'Waiting for a grown-up' : '+' + a.feathers + ' feathers' + (a.rotate ? ' · your turn today' : a.days ? ' · today only' : '')));
+      row.appendChild(m);
+      if (state === 'todo') row.appendChild(el('span', 'go', S.kidMode ? 'I did it' : 'Done'));
+      row.disabled = state !== 'todo';
+      row.addEventListener('click', function () { openActivity(a); });
+      cl.appendChild(row);
+    });
+    if (!todays.length) cl.appendChild(el('div', 'empty', 'No chores today. Enjoy it!'));
+    $('kid-chores-count').textContent = todays.length ? doneN + ' of ' + todays.length + ' done' : '';
+
     var acts = $('kid-acts'); clear(acts);
     $('kid-acts-hint').textContent = S.kidMode ? 'A grown-up checks it' : 'Adds feathers right away';
-    conf.activities.forEach(function (a) {
+    conf.activities.filter(function (a) { return !a.chore && (!a.kids || a.kids.indexOf(kid) >= 0); }).forEach(function (a) {
       var b = el('button', 'act'); b.type = 'button'; b.style.setProperty('--cs', 'var(--c-' + a.cat + '-soft)'); b.style.setProperty('--cc', 'var(--c-' + a.cat + ')');
       var top = el('div', 'top'); var ic = el('span', 'ic'); html(ic, catSvg(a.cat)); top.appendChild(ic);
       var plus = el('span', 'plus'); plus.appendChild(document.createTextNode('+' + a.feathers)); html(el('span'), ''); top.appendChild(plus); b.appendChild(top);
@@ -1586,14 +1652,16 @@ if (typeof module !== 'undefined') module.exports = { normEvents: normEvents, ev
     items.forEach(function (it) {
       var d = it.d, row = el('div', 'q-row');
       var a = el('span'); html(a, avSvg(S.avatars[d.kid], 34)); row.appendChild(a);
+      if (it.kind === 'log' && d.photo) { var th = el('button', 'q-photo'); th.type = 'button'; th.setAttribute('aria-label', 'See photo'); var ti = el('img'); ti.src = d.photo; ti.alt = ''; th.appendChild(ti); th.addEventListener('click', function () { openPhoto(d); }); row.appendChild(th); }
       var m = el('div', 'main');
       m.appendChild(el('b', null, kidOf(d.kid).name + (it.kind === 'log' ? ': ' + d.label : ' wants ' + d.label)));
       m.appendChild(el('span', null, (it.kind === 'log' ? '+' + d.feathers + ' feathers' : d.cost + ' feathers') + ' · ' + relDay(S.today, d.day)));
+      if (it.kind === 'log' && d.check) m.appendChild(el('span', 'q-check ' + (d.check.ok ? 'ok' : 'hmm'), (d.check.ok ? 'Claude: looks done. ' : 'Claude isn\u2019t sure. ') + d.check.note));
       row.appendChild(m);
-      var no = el('button', 'qb', 'No'); no.type = 'button'; no.addEventListener('click', function () { kWrite(it.kind === 'log' ? 'kids_log' : 'kids_redeem', d.id, { status: 'rejected', decidedAt: new Date().toISOString() }); });
+      var no = el('button', 'qb', 'No'); no.type = 'button'; no.addEventListener('click', function () { kWrite(it.kind === 'log' ? 'kids_log' : 'kids_redeem', d.id, it.kind === 'log' && d.photo ? { status: 'rejected', decidedAt: new Date().toISOString(), photo: null } : { status: 'rejected', decidedAt: new Date().toISOString() }); });
       var yes = el('button', 'qb yes', it.kind === 'red' && d.type === 'screen' ? 'Start' : 'Yes'); yes.type = 'button';
       yes.addEventListener('click', function () {
-        if (it.kind === 'log') kWrite('kids_log', d.id, { status: 'approved', decidedAt: new Date().toISOString() });
+        if (it.kind === 'log') kWrite('kids_log', d.id, d.photo ? { status: 'approved', decidedAt: new Date().toISOString(), photo: null } : { status: 'approved', decidedAt: new Date().toISOString() });
         else kWrite('kids_redeem', d.id, d.type === 'screen' ? { status: 'active', startedAt: new Date().toISOString(), endsAt: new Date(Date.now() + (d.minutes || 15) * 60000).toISOString() } : { status: 'approved', decidedAt: new Date().toISOString() });
       });
       row.appendChild(no); row.appendChild(yes); q.appendChild(row);
@@ -1609,6 +1677,31 @@ if (typeof module !== 'undefined') module.exports = { normEvents: normEvents, ev
     var data = Object.assign({}, rec); delete data.id;
     db.doc(col + '/' + id).set(data).then(null, function () { toast("Couldn't save that. Try again."); });
   }
+  function makeThumb(file) {
+    return new Promise(function (res, rej) {
+      var url = URL.createObjectURL(file), im = new Image();
+      im.onload = function () {
+        var sc = Math.min(1, 420 / Math.max(im.naturalWidth, im.naturalHeight)), c = document.createElement('canvas');
+        c.width = Math.round(im.naturalWidth * sc); c.height = Math.round(im.naturalHeight * sc);
+        c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+        try { res(c.toDataURL('image/jpeg', 0.62)); } catch (e) { rej(e); }
+      };
+      im.onerror = function () { URL.revokeObjectURL(url); rej(new Error('bad image')); };
+      im.src = url;
+    });
+  }
+  function openPhoto(d) {
+    openSheet(function (body) {
+      var h = el('div', 'sh-head'); var m = el('div', 'main'); m.appendChild(el('h2', null, kidOf(d.kid).name + ': ' + d.label)); m.appendChild(el('span', null, d.check ? 'Claude: ' + d.check.note : 'No photo check')); h.appendChild(m);
+      var x = el('button', 'x'); x.type = 'button'; x.setAttribute('aria-label', 'Close'); html(x, ICON.x); x.addEventListener('click', closeSheet); h.appendChild(x); body.appendChild(h);
+      var img = el('img', 'photo-big'); img.src = d.photo; img.alt = 'Photo from ' + kidOf(d.kid).name; body.appendChild(img);
+      var row = el('div'); row.style.cssText = 'display:flex;gap:10px';
+      var no = el('button', 'btn', 'No'); no.type = 'button'; no.addEventListener('click', function () { closeSheet(); kWrite('kids_log', d.id, { status: 'rejected', decidedAt: new Date().toISOString(), photo: null }); });
+      var yes = el('button', 'btn primary', 'Yes, +' + d.feathers); yes.type = 'button'; yes.addEventListener('click', function () { closeSheet(); kWrite('kids_log', d.id, { status: 'approved', decidedAt: new Date().toISOString(), photo: null }); });
+      row.appendChild(no); row.appendChild(yes); body.appendChild(row);
+      body.appendChild(el('p', 'note', 'The photo is deleted once you decide.'));
+    }, 'Photo');
+  }
   function openActivity(a) {
     var k = kidOf(S.kid);
     openSheet(function (body) {
@@ -1617,10 +1710,40 @@ if (typeof module !== 'undefined') module.exports = { normEvents: normEvents, ev
       var x = el('button', 'x'); x.type = 'button'; x.setAttribute('aria-label', 'Close'); html(x, ICON.x); x.addEventListener('click', closeSheet); h.appendChild(x); body.appendChild(h);
       var big = el('div'); big.style.cssText = 'align-self:center'; html(big, avSvg(S.avatars[S.kid], 110)); body.appendChild(big);
       body.appendChild(el('p', 'note', S.kidMode ? 'Tap the button and a grown-up will check it. Then the feathers are yours!' : 'This adds the feathers for ' + k.name + ' right away.'));
+      var needPhoto = S.kidMode && kc().photoChores && a.cat === 'chores', shot = { thumb: null, check: null, busy: false };
       var go = el('button', 'btn primary', S.kidMode ? 'Yes, I did it!' : 'Add ' + a.feathers + ' feathers for ' + k.name); go.type = 'button';
+      function sync() { go.disabled = shot.busy || (needPhoto && !shot.thumb); }
+      if (S.kidMode) {
+        var pbox = el('div', 'photo-box'), pin = el('input'); pin.type = 'file'; pin.accept = 'image/*'; pin.setAttribute('capture', 'environment'); pin.hidden = true;
+        var pbtn = el('button', 'btn', needPhoto ? 'Take a photo (needed for chores)' : 'Add a photo (optional)'); pbtn.type = 'button';
+        pbtn.addEventListener('click', function () { pin.click(); });
+        function drawShot() {
+          clear(pbox); if (!shot.thumb) return;
+          var img = el('img'); img.src = shot.thumb; img.alt = 'Your photo'; pbox.appendChild(img);
+          var t = el('span', 'photo-note ' + (shot.busy ? '' : shot.check ? (shot.check.ok ? 'ok' : 'hmm') : ''),
+            shot.busy ? 'Claude is taking a look…' : shot.check ? shot.check.note : 'A grown-up will look at your photo.');
+          pbox.appendChild(t); pbtn.textContent = 'Take a different photo';
+        }
+        pin.addEventListener('change', function () {
+          var f = pin.files && pin.files[0]; if (!f) return;
+          makeThumb(f).then(function (t) {
+            shot.thumb = t; shot.check = null; drawShot(); sync();
+            if (!sampleFn || !S.canSeePhotos) return;
+            shot.busy = true; drawShot(); sync();
+            var prompt = 'You help check photos in a family kids\' reward app. A child says they just did this: "' + a.label + '".' + (a.checklist ? ' What done looks like: ' + a.checklist : '') + ' Look at the photo. Reply with JSON only: {"ok": true or false, "note": "..."}. ok is true when the photo plausibly shows it done, false only when it clearly shows it not done or something unrelated; when unsure, choose true. note is one short, warm sentence to the child (at most 15 words): praise, or kindly what still looks left to do.';
+            sampleFn.json(prompt, { images: f, modelTier: 'quick' }).then(function (r) {
+              shot.check = { ok: !(r && r.ok === false), note: String((r && r.note) || 'Nice work!').slice(0, 140) };
+            }, function () { shot.check = null; }).then(function () { shot.busy = false; drawShot(); sync(); });
+          }, function () { toast("Couldn't read that photo. Try again."); });
+        });
+        body.appendChild(pbtn); body.appendChild(pin); body.appendChild(pbox);
+      }
+      sync();
       go.addEventListener('click', function () {
         var id = kNewId('l');
-        kWrite('kids_log', id, { kid: S.kid, activity: a.id, label: a.label, cat: a.cat, feathers: a.feathers, green: a.green || 0, day: S.today, at: new Date().toISOString(), status: S.kidMode ? 'pending' : 'approved', by: S.kidMode ? S.kid : 'daniel' });
+        var rec = { kid: S.kid, activity: a.id, label: a.label, cat: a.cat, feathers: a.feathers, green: a.green || 0, day: S.today, at: new Date().toISOString(), status: S.kidMode ? 'pending' : 'approved', by: S.kidMode ? S.kid : 'daniel' };
+        if (shot.thumb) { rec.photo = shot.thumb; if (shot.check) rec.check = shot.check; }
+        kWrite('kids_log', id, rec);
         closeSheet(); toast(S.kidMode ? 'Sent! A grown-up will check it.' : '+' + a.feathers + ' feathers for ' + k.name);
       });
       body.appendChild(go);
@@ -1692,7 +1815,7 @@ if (typeof module !== 'undefined') module.exports = { normEvents: normEvents, ev
       var h = el('div', 'sh-head'); var m = el('div', 'main'); m.appendChild(el('h2', null, 'Values and limits')); m.appendChild(el('span', null, 'What earns feathers, what things cost, and daily screen limits.')); h.appendChild(m);
       var x = el('button', 'x'); x.type = 'button'; x.setAttribute('aria-label', 'Close'); html(x, ICON.x); x.addEventListener('click', closeSheet); h.appendChild(x); body.appendChild(h);
       body.appendChild(el('span', 'label', 'Earn'));
-      var c1 = el('div', 'card'); conf.activities.forEach(function (a) { c1.appendChild(row(a.label, CAT[a.cat].name + (a.green ? ' · green time' : ''), stepper(function () { return a.feathers; }, function (v) { a.feathers = v; }, 1, 1))); }); body.appendChild(c1);
+      var c1 = el('div', 'card'); conf.activities.forEach(function (a) { c1.appendChild(row(a.label, CAT[a.cat].name + (a.chore ? ' · ' + (a.rotate ? 'takes turns' : (a.kids || []).map(function (id) { return kidOf(id).name; }).join(', ')) + (a.days ? ' · ' + a.days.map(function (d) { return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d]; }).join(', ') : ' · daily') : '') + (a.green ? ' · green time' : ''), stepper(function () { return a.feathers; }, function (v) { a.feathers = v; }, 1, 1))); }); body.appendChild(c1);
       body.appendChild(el('span', 'label', 'Spend'));
       var c2 = el('div', 'card'); conf.rewards.forEach(function (r) { c2.appendChild(row(r.label, r.type === 'screen' ? r.minutes + ' min of screen' : 'Real-world treat', stepper(function () { return r.cost; }, function (v) { r.cost = v; }, 1, 1))); }); body.appendChild(c2);
       body.appendChild(el('span', 'label', 'Daily screen limit (minutes)'));
@@ -1705,6 +1828,9 @@ if (typeof module !== 'undefined') module.exports = { normEvents: normEvents, ev
       var tg = el('button', 'toggle'); tg.type = 'button'; tg.setAttribute('aria-label', 'Green time first'); tg.setAttribute('aria-pressed', conf.outsideFirst ? 'true' : 'false');
       tg.addEventListener('click', function () { conf.outsideFirst = !conf.outsideFirst; tg.setAttribute('aria-pressed', conf.outsideFirst ? 'true' : 'false'); });
       c4.appendChild(row('Green time first', 'Screen rewards unlock after something outside, reading or making that day', tg));
+      var tp = el('button', 'toggle'); tp.type = 'button'; tp.setAttribute('aria-label', 'Photo for chores'); tp.setAttribute('aria-pressed', conf.photoChores ? 'true' : 'false');
+      tp.addEventListener('click', function () { conf.photoChores = !conf.photoChores; tp.setAttribute('aria-pressed', conf.photoChores ? 'true' : 'false'); });
+      c4.appendChild(row('Photo for chores', 'In kid mode, chores need a photo. Claude takes a first look; you decide. Photos are deleted after.', tp));
       c4.appendChild(row('Family goal', conf.goal.label, stepper(function () { return conf.goal.target; }, function (v) { conf.goal.target = v; }, 50, 50)));
       body.appendChild(c4);
       var save = el('button', 'btn primary', 'Save'); save.type = 'button';
@@ -1855,7 +1981,7 @@ if (typeof module !== 'undefined') module.exports = { normEvents: normEvents, ev
   window.claude.use('permissions').then(function (p) { perms = p; }, function () {});
   window.claude.use('sample').then(function (s) {
     sampleFn = s; render();
-    if (s && s.limits) s.limits().then(function (l) { CHAT.tools = !!(l && l.tools); }, function () {});
+    if (s && s.limits) s.limits().then(function (l) { CHAT.tools = !!(l && l.tools); S.canSeePhotos = !!(l && l.images); }, function () {});
   }, function () {});
   window.claude.use('user').then(function (u) {
     if (!u) return;
