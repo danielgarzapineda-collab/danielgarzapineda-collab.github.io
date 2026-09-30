@@ -217,6 +217,29 @@ h1, h2, h3 { margin: 0; font-family: var(--display); font-weight: 600; text-wrap
 .fact span { font-size: 11px; font-weight: 700; color: var(--muted); }
 .fact b { font-size: 14px; overflow-wrap: anywhere; }
 .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.linkbtn { align-self: flex-start; background: none; border: 0; padding: 6px 0; color: var(--teal); font: inherit; font-weight: 600; font-size: 14px; cursor: pointer; text-align: left; }
+.lg-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 14px; background: var(--sunk); }
+.lg-seg button { min-height: 40px; border: 0; border-radius: 10px; background: none; font-size: 14px; font-weight: 700; color: var(--muted); cursor: pointer; }
+.lg-seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+.lg-group { display: flex; flex-direction: column; }
+.lg-group > .eyebrow { color: var(--muted); padding: 6px 0 4px; display: flex; justify-content: space-between; }
+.lg-line { display: flex; flex-direction: column; gap: 6px; width: 100%; padding: 12px 0; background: none; border: 0; border-top: 1px solid var(--line-soft); text-align: left; color: var(--ink); cursor: pointer; font: inherit; }
+.lg-line .row1 { display: flex; justify-content: space-between; gap: 10px; font-size: 15px; align-items: baseline; }
+.lg-line .row1 b { font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+.lg-line .row1 span { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; font-size: 14px; }
+.lg-line .tag { align-self: flex-start; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 8px; }
+.tag.ahead { background: var(--amber-soft); color: var(--amber-ink); } .tag.over { background: var(--red-soft); color: var(--red-ink); }
+.lg-txs { display: flex; flex-direction: column; margin: 0 0 8px; padding: 2px 12px; border-radius: 12px; background: var(--sunk); }
+.lg-tx { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+.lg-txs .lg-tx:first-child, .lg-day + .lg-tx { border-top: 0; }
+.lg-tx .m { display: flex; flex-direction: column; min-width: 0; }
+.lg-tx .m b { font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+.lg-tx .m span { font-size: 12px; color: var(--muted); }
+.lg-tx .amt { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lg-tx .amt.in { color: var(--teal); }
+.lg-day { font-size: 12px; font-weight: 700; color: var(--muted); padding: 12px 0 2px; }
+.lg-needs { border-radius: 14px; background: var(--amber-soft); color: var(--amber-ink); padding: 10px 14px; display: flex; flex-direction: column; }
+.lg-needs .lg-tx { border-top-color: rgba(107,66,5,.18); } .lg-needs .lg-tx .m span { color: var(--amber-ink); }
 .chip { min-height: 36px; padding: 0 12px; border-radius: 18px; border: 1px solid var(--line); background: var(--surface); font-size: 13px; cursor: pointer; }
 .av-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
 .av-pick { height: 76px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
@@ -399,7 +422,7 @@ body.kidmode .kid-hero .name { font-size: 28px; }
     <div class="card">
       <button class="list-btn" type="button" id="open-avatars"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg><span>Avatars<small>Pick one for each of you and the kids</small></span></button>
       <a class="list-btn" href="https://claude.ai" target="_blank" rel="noopener"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3 8-8"></path><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"></path></svg><span>Chores<small>Opens the Chores app</small></span></a>
-      <a class="list-btn" href="https://claude.ai" target="_blank" rel="noopener"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"></path></svg><span>Household ledger<small>Every purchase, by budget line</small></span></a>
+      <button class="list-btn" type="button" id="open-ledger"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"></path></svg><span>Household ledger<small>Every purchase, by budget line</small></span></button>
     </div>
     <p class="note">Prototype. Calendar and bills are live; budget and points are copied from your main Colibrí app.</p>
   </section>
@@ -609,11 +632,10 @@ function budgetView(sum, today) {
     month: sum.month, started: sum.month <= curMonth, frac: frac, target: target, spent: spent, pace: pace,
     status: spent > target ? 'over' : (frac < 1 && spent > pace * 1.1 ? 'ahead' : 'ok'),
     flagged: lines.filter(function (l) { return l.status !== 'ok'; }).sort(function (a, b) { return b.gap - a.gap; }),
-    needsLine: Number(sum.needs_line) || 0, lastSync: sum.last_sync || null, fund: sum.fund || null, url: sum.ledger_url || null
+    lines: lines, txns: Array.isArray(sum.txns) ? sum.txns : null, needsLine: Number(sum.needs_line) || 0, lastSync: sum.last_sync || null, fund: sum.fund || null, url: sum.ledger_url || null
   };
 }
 if (typeof module !== 'undefined') module.exports = { normEvents: normEvents, eventsOn: eventsOn, flagsFor: flagsFor, alertsFromPayload: alertsFromPayload, paymentsDue: paymentsDue, addDays: addDays, startOfDayISO: startOfDayISO, parseDue: parseDue, budgetView: budgetView };
-
 </script>
 <script>
 /* Colibrí demo data: invented sample data so the installed app works without Claude. Nothing here is real. */
@@ -664,7 +686,24 @@ if (typeof module !== 'undefined') module.exports = { normEvents: normEvents, ev
       { id: 'D05', name: 'Other / not yet named', group: 'Discretionary', target: 0, spent: 64.2, pace: 'prorate', risk: true }
     ];
     var total = lines.reduce(function (a, l) { return a + l.target; }, 0), spent = lines.reduce(function (a, l) { return a + l.spent; }, 0);
-    s['ledger/summary'] = { month: month, operating_target: total, spent_total: Math.round(spent * 100) / 100, needs_line: 2, lines: lines, last_sync: iso(addDays(t, -1), '23:02'), ledger_url: 'https://claude.ai' };
+    var SHOPS = { N01: ['Wegmans', 'Costco', 'Walmart.com', 'Tops', 'Aldi'], N02: ['Fastrac', 'Byrne Dairy', 'Costco Gas'], D01: ['Dunkin\u2019', 'Chipotle', 'Panera Bread', 'Starbucks', 'Pastabilities'], D02: ['Amazon.com', 'Target.com'], F01: ['National Grid', 'Water bill'], F02: ['Soccer club fee', 'Swim school'] };
+    var CARDS = ['Amex ·1004', 'Citi ·1234', 'Chase ·5678', 'Bilt ·4321'], dayNo = Number(t.slice(8, 10)), txns = [], seedN = 7;
+    function rnd() { seedN = (seedN * 9301 + 49297) % 233280; return seedN / 233280; }
+    lines.forEach(function (l) {
+      var shops = SHOPS[l.id]; if (!shops || !(l.spent > 0)) return;
+      var n = Math.max(1, Math.min(9, Math.round(l.spent / (l.id === 'N01' ? 140 : l.id === 'F01' ? 225 : 45)))), w = [], tot = 0, i;
+      for (i = 0; i < n; i++) { w.push(0.5 + rnd()); tot += w[i]; }
+      var left = Math.round(l.spent * 100);
+      for (i = 0; i < n; i++) {
+        var c = i === n - 1 ? left : Math.round(l.spent * 100 * w[i] / tot); left -= c;
+        var dd = month + '-' + String(1 + Math.floor(rnd() * dayNo)).padStart(2, '0');
+        txns.push({ id: 'ex-t-' + l.id + '-' + i, date: dd, merchant: shops[i % shops.length], amount: -c / 100, line_id: l.id, card: CARDS[Math.floor(rnd() * CARDS.length)], type: 'PURCHASE' });
+      }
+    });
+    txns.push({ id: 'ex-t-n1', date: t, merchant: 'SQ *Farm Stand', amount: -38.5, line_id: 'D05', card: 'Chase ·5678', type: 'PURCHASE', needs_line: true });
+    txns.push({ id: 'ex-t-n2', date: addDays(t, dayNo > 2 ? -2 : 0), merchant: 'PayPal *Marketplace', amount: -25.7, line_id: 'D05', card: 'Amex ·1004', type: 'PURCHASE', needs_line: true });
+    if (dayNo > 3) txns.push({ id: 'ex-t-r1', date: addDays(t, -1), merchant: 'Amazon.com refund', amount: 18.99, line_id: 'D02', card: 'Amex ·1004', type: 'REFUND' });
+    s['ledger/summary'] = { month: month, operating_target: total, spent_total: Math.round(spent * 100) / 100, needs_line: 2, lines: lines, txns: txns, last_sync: iso(addDays(t, -1), '23:02'), ledger_url: 'https://claude.ai' };
     s['points/summary'] = { as_of: t, deadlines: [
       { code: 'AMEX', title: 'Use this month’s dining credit', date: addDays(t, 20), note: 'Sample deadline.' },
       { code: 'IHG', title: '2x points on hotel stays', start: addDays(t, 1), date: addDays(t, 90), note: 'Sample promo.' },
@@ -684,9 +723,9 @@ if (typeof module !== 'undefined') module.exports = { normEvents: normEvents, ev
 
   /* A tiny local store with the same calls the app makes on Claude's database. */
   function makeDb(t) {
-    var KEY = 'colibri-demo-v1', store = null, subs = [];
-    try { store = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) {}
-    if (!store || store.__day !== t) { var keep = store || {}; store = seed(t); store.__day = t; if (keep['kids/pin']) store['kids/pin'] = keep['kids/pin']; }
+    var KEY = 'colibri-demo-v2', store = null, subs = [], prev = null;
+    try { store = JSON.parse(localStorage.getItem(KEY) || 'null'); prev = JSON.parse(localStorage.getItem('colibri-demo-v1') || 'null'); } catch (e) {}
+    if (!store || store.__day !== t) { var keep = store || prev || {}; store = seed(t); store.__day = t; if (keep['kids/pin']) store['kids/pin'] = keep['kids/pin']; }
     function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} subs.forEach(function (f) { f(); }); }
     function snap(path) { var parts = path.split('/'); return { id: parts[parts.length - 1], exists: Object.prototype.hasOwnProperty.call(store, path), data: function () { return JSON.parse(JSON.stringify(store[path])); } }; }
     function doc(path) {
@@ -714,7 +753,6 @@ if (typeof module !== 'undefined') module.exports = { normEvents: normEvents, ev
 
   window.COLIBRI_DEMO = { family: family, mine: mine, mail: mail, db: makeDb };
 })();
-
 </script>
 <script>
 (function () {
@@ -1014,7 +1052,7 @@ if (typeof module !== 'undefined') module.exports = { normEvents: normEvents, ev
         var w = el('div', 'bline'); var rr = el('div', 'row1'); rr.appendChild(el('span', null, l.name.replace(/\s*\(.*\)$/, ''))); rr.appendChild(el('span', null, usd(l.spent) + ' / ' + usd(l.target))); w.appendChild(rr);
         w.appendChild(meter(l.spent, l.target, bv.frac, l.status, l.pace !== 'lump' && bv.started && bv.frac < 1, true)); b.appendChild(w);
       });
-      var a = el('a', null, 'All budget lines in the ledger ›'); a.href = LEDGER_URL; a.target = '_blank'; a.rel = 'noopener'; a.style.fontWeight = '600'; a.style.fontSize = '14px'; b.appendChild(a);
+      var a = el('button', 'linkbtn', 'All budget lines and purchases ›'); a.type = 'button'; a.addEventListener('click', function () { openLedger(); }); b.appendChild(a);
     }
     var bl = $('bills');
     if (!S.mail.alerts) { if (S.mcpState === 'none' || S.mail.err) { clear(bl); bl.appendChild(el('div', 'empty', 'Bills load from your card alerts when this app opens in Claude.')); } return; }
@@ -1108,6 +1146,85 @@ if (typeof module !== 'undefined') module.exports = { normEvents: normEvents, ev
     var m = el('div', 'main'); m.appendChild(el('h2', null, title)); lines.forEach(function (l) { if (l) m.appendChild(el('span', null, l)); }); h.appendChild(m);
     var x = el('button', 'x'); x.type = 'button'; x.setAttribute('aria-label', 'Close'); html(x, ICON.x); x.addEventListener('click', closeSheet); h.appendChild(x);
     body.appendChild(h);
+  }
+
+  /* ---------- Household ledger, inside the app ---------- */
+  var LG_ORDER = ['Needed', 'Fixed', 'Discretionary'];
+  function money2(n) { return '$' + Math.abs(Number(n) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function txRow(t, showLine, names) {
+    var r = el('div', 'lg-tx'), m = el('div', 'm');
+    m.appendChild(el('b', null, t.merchant || 'Purchase'));
+    var bits = showLine ? [] : [fmtDay(t.date, 'short').replace(/^\w+, /, '')];
+    if (showLine && t.line_id && names[t.line_id] && !t.needs_line) bits.push(names[t.line_id].replace(/\s*\(.*\)$/, ''));
+    if (t.card) bits.push(t.card);
+    if (t.status === 'provisional') bits.push('cash');
+    m.appendChild(el('span', null, bits.join(' · '))); r.appendChild(m);
+    var inflow = Number(t.amount) > 0;
+    r.appendChild(el('span', 'amt' + (inflow ? ' in' : ''), (inflow ? '+' : '') + money2(t.amount)));
+    return r;
+  }
+  function openLedger(focusId) {
+    var bv = budgetView(S.ledger, S.today);
+    var mode = 'lines', open = {}; if (focusId) open[focusId] = true;
+    openSheet(function (body) {
+      var mon = bv ? bv.month : S.today.slice(0, 7);
+      var mname = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'long' }).format(new Date(mon + '-15T12:00:00Z'));
+      sheetHead(body, mname.slice(0, 3).toUpperCase(), String(Number(S.today.slice(8, 10))), 'Household ledger', [
+        bv ? usd(bv.spent) + ' of ' + usd(bv.target) + ' · ' + mname : 'Waiting for the first sync',
+        bv && bv.lastSync ? 'Updated ' + relDay(S.today, ymdInTZ(new Date(bv.lastSync))).toLowerCase() + ' at ' + fmtTime(new Date(bv.lastSync)) : 'Syncs every night from your card alerts'
+      ]);
+      if (!bv) { body.appendChild(el('div', 'empty', 'The ledger shows here after the next nightly sync.')); return; }
+      body.appendChild(meter(bv.spent, bv.target, bv.frac, bv.status, bv.started && bv.frac < 1, false));
+      var names = {}; bv.lines.forEach(function (l) { names[l.id] = l.name; });
+      var txns = (bv.txns || []).filter(function (t) { return t && t.date; }).sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
+      var needs = txns.filter(function (t) { return t.needs_line; });
+      if (needs.length) {
+        var nb = el('div', 'lg-needs'); nb.appendChild(el('span', 'eyebrow', needs.length + (needs.length === 1 ? ' purchase needs' : ' purchases need') + ' a budget line'));
+        needs.forEach(function (t) { nb.appendChild(txRow(t, false, names)); }); body.appendChild(nb);
+      }
+      var seg = el('div', 'lg-seg'); var bL = el('button', null, 'By budget line'), bA = el('button', null, 'All purchases');
+      [bL, bA].forEach(function (b) { b.type = 'button'; seg.appendChild(b); });
+      body.appendChild(seg);
+      var box = el('div'); body.appendChild(box);
+      function draw() {
+        bL.setAttribute('aria-pressed', String(mode === 'lines')); bA.setAttribute('aria-pressed', String(mode === 'all'));
+        clear(box);
+        if (mode === 'lines') {
+          var groups = {}; bv.lines.forEach(function (l) { var g = (S.ledger.lines.filter(function (x) { return x.id === l.id; })[0] || {}).group || 'Other'; (groups[g] = groups[g] || []).push(l); });
+          Object.keys(groups).sort(function (a, b) { var ia = LG_ORDER.indexOf(a), ib = LG_ORDER.indexOf(b); return (ia < 0 ? 9 : ia) - (ib < 0 ? 9 : ib); }).forEach(function (g) {
+            var gl = groups[g], gs = gl.reduce(function (a, l) { return a + l.spent; }, 0), gt = gl.reduce(function (a, l) { return a + l.target; }, 0);
+            var wrap = el('div', 'lg-group'); var h = el('div', 'eyebrow'); h.appendChild(el('span', null, g)); h.appendChild(el('span', null, usd(gs) + ' / ' + usd(gt))); wrap.appendChild(h);
+            gl.forEach(function (l) {
+              var btn = el('button', 'lg-line'); btn.type = 'button'; btn.setAttribute('aria-expanded', String(!!open[l.id]));
+              var r1 = el('div', 'row1'); r1.appendChild(el('b', null, l.name.replace(/\s*\(.*\)$/, ''))); r1.appendChild(el('span', null, usd(l.spent) + ' / ' + usd(l.target))); btn.appendChild(r1);
+              btn.appendChild(meter(l.spent, l.target, bv.frac, l.status, l.pace !== 'lump' && bv.started && bv.frac < 1, true));
+              if (l.status !== 'ok') btn.appendChild(el('span', 'tag ' + l.status, l.status === 'over' ? (l.target ? 'Over by ' + usd(l.spent - l.target) : 'No budget set') : 'Ahead of pace by ' + usd(l.gap)));
+              btn.addEventListener('click', function () { open[l.id] = !open[l.id]; draw(); });
+              wrap.appendChild(btn);
+              if (open[l.id]) {
+                var list = txns.filter(function (t) { return t.line_id === l.id && !t.needs_line; }), tb = el('div', 'lg-txs');
+                if (!bv.txns) tb.appendChild(el('div', 'empty', 'Purchases show here after the next nightly sync.'));
+                else if (!list.length) tb.appendChild(el('div', 'empty', 'No purchases on this line yet this month.'));
+                list.forEach(function (t) { tb.appendChild(txRow(t, false, names)); });
+                wrap.appendChild(tb);
+              }
+            });
+            box.appendChild(wrap);
+          });
+        } else {
+          if (!bv.txns) { box.appendChild(el('div', 'empty', 'Purchases show here after the next nightly sync.')); return; }
+          if (!txns.length) { box.appendChild(el('div', 'empty', 'No purchases yet this month.')); return; }
+          var last = null;
+          txns.forEach(function (t) {
+            if (t.date !== last) { box.appendChild(el('div', 'lg-day', relDay(S.today, t.date))); last = t.date; }
+            box.appendChild(txRow(t, true, names));
+          });
+        }
+      }
+      bL.addEventListener('click', function () { mode = 'lines'; draw(); });
+      bA.addEventListener('click', function () { mode = 'all'; draw(); });
+      draw();
+    }, 'Household ledger');
   }
 
   function openEvent(e) {
@@ -1257,6 +1374,7 @@ if (typeof module !== 'undefined') module.exports = { normEvents: normEvents, ev
   }
   $('my-av').addEventListener('click', openAvatars);
   $('open-avatars').addEventListener('click', openAvatars);
+  $('open-ledger').addEventListener('click', function () { openLedger(); });
 
   /* Briefing */
   $('brief-btn').addEventListener('click', function () {
@@ -1777,7 +1895,6 @@ if (typeof module !== 'undefined') module.exports = { normEvents: normEvents, ev
   }
   window.claude.use('mcp').then(function (m) { mcp = m; S.mcpState = m ? 'ready' : 'none'; if (m) startWatches(); render(); }, function () { S.mcpState = 'none'; render(); });
 })();
-
 </script>
 <script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
 </body>
