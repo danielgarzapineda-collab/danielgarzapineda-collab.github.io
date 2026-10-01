@@ -107,6 +107,10 @@ h1, h2, h3 { margin: 0; font-family: var(--display); font-weight: 600; text-wrap
 .hero p { margin: 0; font-size: 14px; line-height: 1.5; }
 .hero .brief-btn { align-self: flex-start; min-height: 40px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--on-hero-muted); background: transparent; color: var(--on-hero); font-weight: 600; font-size: 14px; cursor: pointer; }
 
+.hero .brief-tag { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--on-hero-muted); margin-bottom: -6px; }
+.hero #hero-brief { white-space: pre-line; }
+.ask-handoff { display: flex; gap: 8px; flex-wrap: wrap; margin: 2px 0 6px 38px; }
+
 /* sections */
 .sec { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 22px 4px 10px; }
 .sec h2 { font-size: 19px; }
@@ -442,6 +446,7 @@ body.kidmode .kid-hero .name { font-size: 28px; }
     <div class="hero" id="hero" aria-live="polite">
       <div class="eyebrow"><span id="hero-eyebrow">Loading your day</span><span id="hero-cal"></span></div>
       <div class="what" id="hero-what"><div class="timechip"><b>··</b><span></span></div><div><div class="t">Checking both calendars…</div></div></div>
+      <span class="brief-tag" id="brief-tag" hidden></span>
       <p id="hero-brief"></p>
       <button class="brief-btn" id="brief-btn" type="button" hidden>Brief me</button>
     </div>
@@ -535,7 +540,7 @@ body.kidmode .kid-hero .name { font-size: 28px; }
     <button class="tab" role="tab" data-go="cal" aria-selected="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>Calendar</button>
     <button class="fab" type="button" id="fab" aria-label="Add to Family calendar"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>
     <button class="tab" role="tab" data-go="kids" aria-selected="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 4c-7 0-12 5-13 12l-3 4 4-2c7-1 12-6 12-14z"></path><path d="M8 16l6-6"></path></svg>Kids</button>
-    <button class="tab" role="tab" data-go="travel" aria-selected="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 13.5 3 11l1.5-1.5 8 1 4-4.5c1-1 2.6-1.3 3.5-.5.8.9.5 2.5-.5 3.5l-4.5 4 1 8L14.5 22.5 12 15"></path></svg>Travel</button>
+    <button class="tab" role="tab" data-go="travel" aria-selected="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"></path></svg>Travel</button>
     <button class="tab" role="tab" data-go="money" aria-selected="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"></path></svg>Money</button>
   </div>
 </nav>
@@ -925,7 +930,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     mail: { alerts: null, err: null, at: null },
     ledger: null, points: null, claims: {}, paid: {}, trips: [],
     avatars: { daniel: 'monarch', andrea: 'cardinal', nicolas: 'fox', dany: 'owl', montse: 'axolotl', motion: true },
-    brief: { text: '', state: 'idle' }, mcpState: 'waiting', dbState: 'waiting',
+    brief: { text: '', state: 'idle' }, morning: null, mcpState: 'waiting', dbState: 'waiting',
     klog: [], kred: [], kconf: null, kid: 'dany', kidMode: false, pinHash: null
   };
   var mcp = null, db = null, sampleFn = null, perms = null, unsubs = [];
@@ -1065,10 +1070,14 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
       what.appendChild(d);
     } else { eb.textContent = 'Nothing else today'; calLbl.textContent = ''; what.appendChild(el('div', 't', 'Your calendars are clear for the next 8 days.')); }
     var open = weekFlags().filter(function (f) { return !S.claims[flagKey(f)]; });
-    brief.textContent = S.brief.text || (open.length ? open.length + (open.length === 1 ? ' thing needs' : ' things need') + ' a decision this week.' : 'Nothing needs a decision this week.');
-    bb.hidden = !sampleFn || S.brief.state === 'done';
+    var mb = S.morning && S.morning.date === S.today && S.morning.text ? S.morning : null, tagEl = $('brief-tag');
+    var showMorning = !S.brief.text && mb;
+    tagEl.hidden = !(showMorning || S.brief.text);
+    tagEl.textContent = showMorning ? 'Morning briefing' + (mb.at ? ' · ' + fmtTime(new Date(mb.at)) : '') : 'Your briefing';
+    brief.textContent = S.brief.text || (showMorning ? mb.text : (open.length ? open.length + (open.length === 1 ? ' thing needs' : ' things need') + ' a decision this week.' : 'Nothing needs a decision this week.'));
+    bb.hidden = S.brief.state === 'done' || (!sampleFn && S.mcpState !== 'live' && S.mcpState !== 'demo');
     bb.disabled = S.brief.state === 'busy';
-    bb.textContent = S.brief.state === 'busy' ? 'Writing…' : S.brief.state === 'error' ? 'Try the briefing again' : 'Brief me';
+    bb.textContent = S.brief.state === 'busy' ? 'Writing…' : S.brief.state === 'error' ? 'Try the briefing again' : showMorning ? 'Update my briefing' : 'Brief me';
   }
 
   function tagText(f) {
@@ -1083,14 +1092,14 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     flags.sort(function (a, b) { var ca = S.claims[flagKey(a)] ? 1 : 0, cb = S.claims[flagKey(b)] ? 1 : 0; return ca - cb || (a.day < b.day ? -1 : 1); });
     if (!flags.length) { var c = el('div', 'decide'); c.appendChild(el('div', 'q', 'Nothing to decide this week.')); c.appendChild(el('div', 'settled', 'Checks look for rides while you travel, adults-only nights and open dates.')); rail.appendChild(c); }
     flags.forEach(function (f) {
-      var k = flagKey(f), claim = S.claims[k], card = el('div', 'decide');
-      var tag = el('div', 'tag'); tag.appendChild(el('span', 'tagpill ' + (claim ? 'ok' : 'warn'), tagText(f)));
-      if (claim) tag.appendChild(el('span', 'settled', 'Settled'));
+      var k = flagKey(f), cl = S.claims[k], card = el('div', 'decide');
+      var tag = el('div', 'tag'); tag.appendChild(el('span', 'tagpill ' + (cl ? 'ok' : 'warn'), tagText(f)));
+      if (cl) tag.appendChild(el('span', 'settled', 'Settled'));
       card.appendChild(tag);
       card.appendChild(el('div', 'q', f.text));
-      if (claim) {
+      if (cl) {
         var s = el('div', 'settled');
-        s.appendChild(el('span', null, (SETTLED[f.kind] || {})[claim.choice] || 'Settled'));
+        s.appendChild(el('span', null, ((SETTLED[f.kind] || {})[cl.choice] || 'Settled') + (cl.by && cl.by !== ME && PEOPLE[cl.by] ? ' · ' + PEOPLE[cl.by] : '')));
         var u = el('button', 'undo', 'Change'); u.type = 'button'; u.addEventListener('click', function () { unclaim(k); });
         s.appendChild(u); card.appendChild(s);
       } else {
@@ -1914,8 +1923,27 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
   $('plan-trip').addEventListener('click', function () { openPlanTrip(); });
 
   /* Briefing */
+  /* Without Claude (home-screen app), the briefing is built right here from the same facts. */
+  function localBrief() {
+    var all = allEvents(), t = S.today, now = Date.now(), lines = [];
+    function rl(d) { var r = relDay(t, d); return r === 'Today' || r === 'Tomorrow' ? r.toLowerCase() : r; }
+    var open = weekFlags().filter(function (f) { return !S.claims[flagKey(f)]; });
+    if (open.length) lines.push('To decide: ' + open[0].text + ' (' + rl(open[0].day) + ')' + (open.length > 1 ? ', plus ' + (open.length - 1) + ' more below.' : '.'));
+    var today = eventsOn(all, t), left = today.filter(function (e) { return e.allDay || !e.end || e.end.getTime() > now; });
+    if (!left.length) lines.push(today.length ? 'The rest of today is clear.' : 'Nothing on the calendar today.');
+    else {
+      var timed = left.filter(function (e) { return !e.allDay; }), first = timed[0] || left[0];
+      lines.push('Today: ' + left.length + (left.length === 1 ? ' thing' : ' things') + ', starting with ' + first.title + (first.allDay ? '' : ' at ' + fmtTime(first.start)) + '.');
+    }
+    var tm = eventsOn(all, addDays(t, 1)).filter(function (e) { return !e.allDay; });
+    if (tm.length) lines.push('Tomorrow starts with ' + tm[0].title + ' at ' + fmtTime(tm[0].start) + '.');
+    var bills = billList().filter(function (d) { return d.due && dayDiff(t, d.due) <= 7 && !S.paid[billKey(d)]; });
+    if (bills.length) lines.push('Due soon: ' + bills.slice(0, 3).map(function (d) { return d.brand + (d.last4 ? ' ·' + d.last4 : '') + ' ' + rl(d.due); }).join('; ') + (bills.length > 3 ? '; plus ' + (bills.length - 3) + ' more.' : '.'));
+    return lines.join('\n');
+  }
   $('brief-btn').addEventListener('click', function () {
-    if (!sampleFn || S.brief.state === 'busy') return;
+    if (S.brief.state === 'busy') return;
+    if (!sampleFn) { S.brief = { text: localBrief(), state: 'done' }; render(); return; }
     var all = allEvents(), t = S.today, tm = addDays(t, 1);
     function simple(e) { return { title: e.priv ? e.title + ' (private)' : e.title, time: e.allDay ? 'all day' : fmtTime(e.start) + '–' + fmtTime(e.end), person: PEOPLE[e.who] }; }
     var data = {
@@ -2395,7 +2423,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     var box = $('chat'); clear(box);
     if (!CHAT.msgs.length) {
       var e = el('div', 'ask-empty');
-      e.appendChild(el('p', null, sampleFn ? 'Ask about your week, bills, budget or anything else. Colibrí can also put things on the Family calendar after you confirm.' : S.mcpState === 'demo' ? 'In this demo, chat is off. In the live version it connects to Claude so you can ask about your week, bills and anything else.' : 'Chat works when this app opens inside Claude.'));
+      e.appendChild(el('p', null, sampleFn ? 'Ask about your week, bills, budget or anything else. Colibrí can also put things on the Family calendar after you confirm.' : S.mcpState === 'demo' ? 'In this demo, chat is off. In the live version it connects to Claude so you can ask about your week, bills and anything else.' : S.mcpState === 'live' ? "Chat in the home-screen app isn't connected to Claude yet. You can still type a question: Colibrí hands it to the Claude app with one tap." : 'Chat works when this app opens inside Claude.'));
       var chips = el('div', 'chips');
       SUGGEST.forEach(function (s) { var c = el('button', 'chip', s); c.type = 'button'; c.addEventListener('click', function () { ask(s); }); chips.appendChild(c); });
       e.appendChild(chips); box.appendChild(e);
@@ -2405,6 +2433,17 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
       var row = el('div', 'bot-row'); var av = el('span', 'who-av'); html(av, avSvg('colibri', 30)); row.appendChild(av);
       row.appendChild(el('div', 'msg bot' + (m.pending ? ' thinking' : ''), m.content || 'Thinking…'));
       box.appendChild(row);
+      if (m.handoff) {
+        var hr = el('div', 'ask-handoff');
+        var go2 = el('button', 'btn primary', 'Ask in Claude'); go2.type = 'button';
+        go2.addEventListener('click', function () {
+          try { navigator.clipboard.writeText(m.handoff).then(null, function () {}); } catch (e) {}
+          window.open('https://claude.ai/new?q=' + encodeURIComponent(m.handoff), '_blank', 'noopener');
+        });
+        var cp = el('button', 'btn', 'Copy question'); cp.type = 'button';
+        cp.addEventListener('click', function () { try { navigator.clipboard.writeText(m.handoff).then(function () { toast('Copied'); }, function () { toast("Couldn't copy"); }); } catch (e) { toast("Couldn't copy"); } });
+        hr.appendChild(go2); hr.appendChild(cp); box.appendChild(hr);
+      }
     });
     if (CHAT.proposal) {
       var p = CHAT.proposal, card = el('div', 'confirm');
@@ -2426,7 +2465,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
       clr.addEventListener('click', function () { if (CHAT.ctrl) CHAT.ctrl.abort(); CHAT.msgs = []; CHAT.proposal = null; CHAT.busy = false; saveChat(); renderChat(); });
       box.appendChild(clr);
     }
-    $('send').disabled = CHAT.busy || !sampleFn;
+    $('send').disabled = CHAT.busy || (!sampleFn && S.mcpState !== 'live');
   }
   function fmtHM(date, hm) { return fmtTime(new Date(date + 'T' + hm + ':00' + offsetFor(new Date(date + 'T12:00:00Z')))); }
   function createFamilyEvent(d) {
@@ -2443,7 +2482,13 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     db.collection('data/users/' + CHAT.uid).doc('chat').set({ msgs: keep, at: new Date().toISOString() }).then(null, function () {});
   }
   function ask(text) {
-    text = String(text || '').trim(); if (!text || CHAT.busy || !sampleFn) return;
+    text = String(text || '').trim(); if (!text || CHAT.busy) return;
+    if (!sampleFn && S.mcpState === 'live') {
+      CHAT.msgs.push({ role: 'user', content: text });
+      CHAT.msgs.push({ role: 'assistant', content: "I can't answer here yet: this home-screen app doesn't have its own Claude connection. Tap Ask in Claude and your question opens there (it's also copied, in case you need to paste it).", handoff: text });
+      renderChat(); window.scrollTo(0, document.body.scrollHeight); return;
+    }
+    if (!sampleFn) return;
     CHAT.proposal = null;
     CHAT.msgs.push({ role: 'user', content: text });
     var reply = { role: 'assistant', content: '', pending: true }; CHAT.msgs.push(reply);
@@ -2599,6 +2644,8 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     db.doc('calendar/family').onSnapshot(function (x) { if (x.exists) { var d = x.data(); S.family.raw = d.events || []; S.family.at = Date.parse(d.at) || Date.now(); render(); } });
     if (ME === 'daniel') db.doc('private_daniel/calendar').onSnapshot(function (x) { if (x.exists) { var d = x.data(); S.mine.raw = d.events || []; S.mine.at = Date.parse(d.at) || Date.now(); render(); } });
     db.doc('mail/alerts').onSnapshot(function (x) { if (x.exists) { S.mail.alerts = alertsFromPayload(x.data().payload || { threads: [] }); render(); } });
+    /* The morning briefing is written by Colibrí's scheduled task: Daniel's includes his own calendar, Andrea's only the Family one. */
+    db.doc(ME === 'daniel' ? 'private_daniel/brief' : 'brief/family').onSnapshot(function (x) { S.morning = x.exists ? x.data() : null; render(); }, function () {});
     render();
   }
 
