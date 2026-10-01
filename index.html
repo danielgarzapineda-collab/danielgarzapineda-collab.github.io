@@ -376,6 +376,38 @@ body:not(.v-home):not(.v-cal) .fab, body.kidmode .fab { display: none; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .thinking i { animation: none; } }
 /* sheet */
+.kitchen { position: fixed; inset: 0; z-index: 15; background: var(--bg); color: var(--ink); display: grid; grid-template-rows: auto minmax(0, 1fr); gap: clamp(10px, 2.2vh, 26px); padding: clamp(14px, 2.8vh, 34px) clamp(16px, 2.8vw, 46px); overflow: hidden; font-family: var(--body); }
+body.kitchen-on { overflow: hidden; }
+body.kitchen-on .tabbar, body.kitchen-on .fab, body.kitchen-on .composer { display: none !important; }
+.k-top { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.k-clock { font-family: var(--display); font-weight: 600; font-size: clamp(36px, min(10vh, 15vw), 112px); line-height: .92; white-space: nowrap; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+.k-date { font-size: clamp(16px, 3.6vh, 36px); font-weight: 600; color: var(--muted); margin-top: 6px; }
+.k-side { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; color: var(--muted); font-size: clamp(12px, 2vh, 18px); text-align: right; }
+.k-lock { min-height: 44px; border-radius: 22px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); display: flex; align-items: center; gap: 6px; padding: 0 16px; font: 600 clamp(13px, 2vh, 17px) var(--body); cursor: pointer; }
+.k-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: clamp(14px, 2.6vw, 36px); min-height: 0; }
+.k-col { min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: clamp(6px, 1.3vh, 12px); }
+.k-h { font-family: var(--display); font-weight: 600; font-size: clamp(20px, 4.4vh, 42px); margin: 0 0 2px; }
+.k-ev { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: clamp(10px, 1.5vw, 20px); background: var(--surface); border: 1px solid var(--line); border-left: 8px solid var(--pc, var(--p-all)); border-radius: 16px; padding: clamp(8px, 1.6vh, 16px) clamp(10px, 1.5vw, 20px); }
+.k-ev .t { font-size: clamp(14px, 2.8vh, 26px); font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 4.6em; }
+.k-ev .n { font-size: clamp(17px, 3.7vh, 34px); font-weight: 600; line-height: 1.15; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.k-ev .w { display: flex; align-items: center; gap: 6px; font-size: clamp(12px, 2.1vh, 19px); color: var(--muted); font-weight: 600; margin-top: 3px; }
+.k-ev .w svg { flex: none; }
+.k-ev.past { opacity: .45; }
+.k-ev.live { box-shadow: 0 0 0 3px var(--amber); }
+.k-day { display: grid; grid-template-columns: clamp(96px, 12.5vw, 200px) minmax(0, 1fr); gap: 12px; padding: clamp(6px, 1.3vh, 12px) 0; border-top: 1px solid var(--line); }
+.k-day:first-of-type { border-top: 0; padding-top: 0; }
+.k-dn { font-weight: 700; font-size: clamp(14px, 2.7vh, 25px); line-height: 1.15; }
+.k-dn small { display: block; color: var(--muted); font-weight: 600; font-size: .78em; }
+.k-items { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.k-it { display: flex; align-items: baseline; gap: 8px; font-size: clamp(14px, 2.7vh, 25px); min-width: 0; }
+.k-it .dot { width: .62em; height: .62em; border-radius: 50%; background: var(--pc, var(--p-all)); flex: none; }
+.k-it .tm { color: var(--muted); font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.k-it .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.k-free, .k-more { color: var(--muted); font-size: clamp(13px, 2.4vh, 22px); }
+.k-more { font-weight: 600; }
+.k-empty { color: var(--muted); font-size: clamp(18px, 3.4vh, 32px); padding: 6px 0; }
+.k-wake { position: absolute; left: 50%; bottom: clamp(10px, 2vh, 22px); transform: translateX(-50%); background: var(--ink); color: var(--bg); border: 0; border-radius: 22px; min-height: 44px; padding: 0 20px; font: 600 clamp(13px, 2vh, 17px) var(--body); cursor: pointer; }
+@media (max-aspect-ratio: 1/1) { .k-grid { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); } }
 .gate { position: fixed; inset: 0; z-index: 40; background: var(--bg); display: flex; align-items: center; justify-content: center; padding: 24px; }
 .gate[hidden] { display: none; }
 .gate-card { width: 100%; max-width: 360px; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
@@ -588,6 +620,8 @@ body.kidmode .kid-hero .name { font-size: 28px; }
   <section id="v-cal" class="view" hidden>
     <div class="greet"><span class="date">Both calendars</span><h1>Next 7 days</h1></div>
     <div class="card" id="week"><div class="skel"></div></div>
+    <div class="btnrow" style="margin-top:12px"><button class="btn" type="button" id="kitchen-open">Open kitchen screen</button></div>
+    <p class="note">Family calendar only, in big type, for the Echo Show or a tablet. No private items or money. Leaving it needs the parent PIN.</p>
   </section>
 
   <section id="v-money" class="view" hidden>
@@ -673,6 +707,17 @@ body.kidmode .kid-hero .name { font-size: 28px; }
 </nav>
 
 <form class="composer" id="composer" hidden autocomplete="off"><div class="inner"><input id="chat-input" aria-label="Ask Colibrí" placeholder="Ask about your week, bills, anything"><button class="send" id="send" type="submit" aria-label="Send"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button></div></form>
+<div class="kitchen" id="kitchen" hidden aria-label="Kitchen screen">
+  <div class="k-top">
+    <div><div class="k-clock" id="k-clock"></div><div class="k-date" id="k-date"></div></div>
+    <div class="k-side"><button class="k-lock" id="k-lock" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>Grown-ups</button><span id="k-upd"></span></div>
+  </div>
+  <div class="k-grid">
+    <div class="k-col"><h2 class="k-h">Today</h2><div id="k-today" class="k-col"></div></div>
+    <div class="k-col"><h2 class="k-h">Coming up</h2><div id="k-next"></div></div>
+  </div>
+  <button class="k-wake" id="k-wake" type="button" hidden>Tap to keep this on screen</button>
+</div>
 <div class="gate" id="gate" hidden><div class="gate-card"><img class="gate-mark" src="icon-192.png" width="88" height="88" alt="" aria-hidden="true">
 <h1>Colibrí</h1><p id="gate-msg">Opening Colibrí…</p>
 <button class="btn primary" type="button" id="gate-btn" hidden>Sign in with Google</button>
@@ -2187,7 +2232,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     if (autoEstimate) estimateTrip(id);
   }
 
-  function render() { renderHeader(); renderHero(); renderDecide(); renderToday(); renderWeek(); renderGlance(); renderMoney(); renderMore(); renderTravel(); renderKids(); }
+  function render() { renderHeader(); renderHero(); renderDecide(); renderToday(); renderWeek(); renderGlance(); renderMoney(); renderMore(); renderTravel(); renderKids(); renderKitchen(); }
 
   /* ---------- Writes (shared state) ---------- */
   function claim(k, choice, f) {
@@ -2866,15 +2911,15 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     try { return crypto.subtle.digest('SHA-256', new TextEncoder().encode('colibri:' + text)).then(function (b) { return Array.from(new Uint8Array(b)).map(function (x) { return x.toString(16).padStart(2, '0'); }).join(''); }); }
     catch (e) { return Promise.resolve('x' + text.split('').reverse().join('')); }
   }
-  function pinSheet(mode, done) {
+  function pinSheet(mode, done, what) {
     openSheet(function (body) {
-      var h = el('div', 'sh-head'); var m = el('div', 'main'); m.appendChild(el('h2', null, mode === 'set' ? 'Set a parent PIN' : 'Grown-ups only')); m.appendChild(el('span', null, mode === 'set' ? '4 digits. You need it to leave kid mode.' : 'Enter the parent PIN to leave kid mode.')); h.appendChild(m);
+      var h = el('div', 'sh-head'); var m = el('div', 'main'); m.appendChild(el('h2', null, mode === 'set' ? 'Set a parent PIN' : 'Grown-ups only')); m.appendChild(el('span', null, mode === 'set' ? '4 digits. You need it to leave ' + (what || 'kid mode') + '.' : 'Enter the parent PIN to leave ' + (what || 'kid mode') + '.')); h.appendChild(m);
       var x = el('button', 'x'); x.type = 'button'; x.setAttribute('aria-label', 'Close'); html(x, ICON.x); x.addEventListener('click', closeSheet); h.appendChild(x); body.appendChild(h);
       var row = el('div', 'pin'), ins = [];
       for (var i = 0; i < 4; i++) { (function (i) { var inp = el('input'); inp.type = 'password'; inp.inputMode = 'numeric'; inp.maxLength = 1; inp.setAttribute('aria-label', 'PIN digit ' + (i + 1)); inp.addEventListener('input', function () { inp.value = inp.value.replace(/\D/g, ''); if (inp.value && ins[i + 1]) ins[i + 1].focus(); }); ins.push(inp); row.appendChild(inp); })(i); }
       body.appendChild(row);
       var msg = el('p', 'note', ''); body.appendChild(msg);
-      var go = el('button', 'btn primary', mode === 'set' ? 'Save PIN and start kid mode' : 'Unlock'); go.type = 'button';
+      var go = el('button', 'btn primary', mode === 'set' ? 'Save PIN and start ' + (what || 'kid mode') : 'Unlock'); go.type = 'button';
       go.addEventListener('click', function () {
         var pin = ins.map(function (i) { return i.value; }).join('');
         if (!/^\d{4}$/.test(pin)) { msg.textContent = 'Enter all 4 digits.'; return; }
@@ -2891,6 +2936,102 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
   function setKidMode(on) { S.kidMode = on; try { localStorage.setItem('colibri-kidmode', on ? '1' : ''); } catch (e) {} if (on) go('kids'); render(); window.scrollTo(0, 0); }
   $('kid-mode').addEventListener('click', function () { if (S.pinHash) setKidMode(true); else pinSheet('set', function () { setKidMode(true); }); });
   $('kid-exit').addEventListener('click', function () { if (!S.pinHash) { setKidMode(false); return; } pinSheet('check', function () { setKidMode(false); }); });
+
+  /* ---------- Kitchen screen: Family calendar only, big type, for the Echo Show or a tablet. Never shows Daniel's own calendar or money. ---------- */
+  var KEEP = { lock: null, audio: null, playing: false, loadDay: null };
+  function silentWav() {
+    var n = 8000, b = new Uint8Array(44 + n), v = new DataView(b.buffer);
+    function s(o, t) { for (var i = 0; i < t.length; i++) b[o + i] = t.charCodeAt(i); }
+    s(0, 'RIFF'); v.setUint32(4, 36 + n, true); s(8, 'WAVE'); s(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, 8000, true); v.setUint32(28, 8000, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true); s(36, 'data'); v.setUint32(40, n, true); b.fill(128, 44);
+    return URL.createObjectURL(new Blob([b], { type: 'audio/wav' }));
+  }
+  /* Echo Show's Silk browser returns to the home screen when idle; a silent audio loop (started by one tap) and a screen wake lock where supported keep it up longer. */
+  function keepAwake() {
+    try { if (navigator.wakeLock && !KEEP.lock) navigator.wakeLock.request('screen').then(function (l) { KEEP.lock = l; l.addEventListener('release', function () { KEEP.lock = null; }); }, function () {}); } catch (e) {}
+    try {
+      if (!KEEP.audio) { KEEP.audio = new Audio(silentWav()); KEEP.audio.loop = true; }
+      var pr = KEEP.audio.play();
+      if (pr && pr.then) pr.then(function () { KEEP.playing = true; $('k-wake').hidden = true; }, function () { KEEP.playing = false; $('k-wake').hidden = !/Silk/i.test(navigator.userAgent); });
+    } catch (e) {}
+  }
+  function setKitchen(on) {
+    S.kitchen = on;
+    try { localStorage.setItem('colibri-kitchen', on ? '1' : ''); } catch (e) {}
+    document.body.classList.toggle('kitchen-on', on);
+    $('kitchen').hidden = !on;
+    if (on) { KEEP.loadDay = KEEP.loadDay || S.today; keepAwake(); renderKitchen(); }
+    else {
+      try { if (KEEP.lock) KEEP.lock.release(); } catch (e) {}
+      try { if (KEEP.audio) KEEP.audio.pause(); } catch (e) {}
+      KEEP.playing = false;
+      if (location.hash === '#kitchen') { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} }
+      render();
+    }
+  }
+  function kTime(e) { return e.allDay ? 'All day' : fmtTime(e.start); }
+  function kWho(e, size) {
+    var w = el('div', 'w');
+    if (e.who !== 'all') { var a = el('span'); html(a, avSvg(S.avatars[e.who], size)); w.appendChild(a); }
+    w.appendChild(el('span', null, PEOPLE[e.who] || 'Everyone'));
+    return w;
+  }
+  function renderKitchen() {
+    if (!S.kitchen) return;
+    var now = new Date();
+    $('k-clock').textContent = fmtTime(now);
+    $('k-date').textContent = new Intl.DateTimeFormat('en-US', { timeZone: TZ, weekday: 'long', month: 'long', day: 'numeric' }).format(now);
+    $('k-upd').textContent = S.family.at ? 'Family calendar · updated ' + agoText(new Date(S.family.at).toISOString()) : 'Family calendar';
+    var tbox = $('k-today'), nbox = $('k-next'); clear(tbox); clear(nbox);
+    if (S.family.raw === null) { tbox.appendChild(el('div', 'k-empty', 'Loading the Family calendar…')); return; }
+    var all = normEvents(S.family.raw, 'family');
+    var today = eventsOn(all, S.today);
+    if (!today.length) tbox.appendChild(el('div', 'k-empty', 'Nothing on the Family calendar today.'));
+    var room = window.innerHeight < 560 ? 3 : window.innerHeight < 900 ? 4 : 6;
+    var upcoming = today.filter(function (e) { return e.allDay || e.end > now; });
+    var shown = upcoming.length >= room ? upcoming : today.filter(function (e) { return !e.allDay && e.end <= now; }).slice(-(room - upcoming.length)).concat(upcoming);
+    shown.sort(function (a, b) { if (a.allDay !== b.allDay) return a.allDay ? -1 : 1; return a.allDay ? 0 : a.start - b.start; });
+    shown.slice(0, room).forEach(function (e) {
+      var c = el('div', 'k-ev'); c.style.setProperty('--pc', PCOLOR[e.who] || PCOLOR.all);
+      if (!e.allDay && e.end <= now) c.classList.add('past');
+      else if (!e.allDay && e.start <= now) c.classList.add('live');
+      c.appendChild(el('div', 't', kTime(e)));
+      var m = el('div'); m.appendChild(el('div', 'n', e.title)); m.appendChild(kWho(e, window.innerHeight < 560 ? 18 : 24)); c.appendChild(m);
+      tbox.appendChild(c);
+    });
+    if (shown.length > room) tbox.appendChild(el('div', 'k-more', '+' + (shown.length - room) + ' more today'));
+    var days = window.innerHeight < 560 ? 5 : 6, per = window.innerHeight < 560 ? 2 : 3;
+    for (var i = 1; i <= days; i++) {
+      var day = addDays(S.today, i), evs = eventsOn(all, day);
+      var row = el('div', 'k-day'), dn = el('div', 'k-dn', i === 1 ? 'Tomorrow' : fmtDay(day, 'long').split(',')[0]);
+      dn.appendChild(el('small', null, fmtDay(day).replace(/^\w+,\s*/, ''))); row.appendChild(dn);
+      var list = el('div', 'k-items');
+      if (!evs.length) list.appendChild(el('div', 'k-free', 'Free'));
+      evs.slice(0, per).forEach(function (e) {
+        var it = el('div', 'k-it'); it.style.setProperty('--pc', PCOLOR[e.who] || PCOLOR.all);
+        it.appendChild(el('span', 'dot')); it.appendChild(el('span', 'tm', kTime(e))); it.appendChild(el('span', 'nm', e.title));
+        list.appendChild(it);
+      });
+      if (evs.length > per) list.appendChild(el('div', 'k-more', '+' + (evs.length - per) + ' more'));
+      row.appendChild(list); nbox.appendChild(row);
+    }
+  }
+  $('kitchen-open').addEventListener('click', function () {
+    var start = function () { try { history.replaceState(null, '', location.pathname + location.search + '#kitchen'); } catch (e) {} setKitchen(true); };
+    if (S.pinHash) start(); else pinSheet('set', start, 'the kitchen screen');
+  });
+  $('k-lock').addEventListener('click', function () { if (!S.pinHash) { setKitchen(false); return; } pinSheet('check', function () { setKitchen(false); }, 'the kitchen screen'); });
+  $('k-wake').addEventListener('click', keepAwake);
+  $('kitchen').addEventListener('click', function () { if (!KEEP.playing) keepAwake(); });
+  document.addEventListener('visibilitychange', function () { if (S.kitchen && document.visibilityState === 'visible') keepAwake(); });
+  setInterval(function () {
+    if (!S.kitchen) return;
+    renderKitchen();
+    if (KEEP.playing && KEEP.audio) { try { KEEP.audio.currentTime = 0; KEEP.audio.play(); } catch (e) {} }
+    var h = Number(new Intl.DateTimeFormat('en-US', { timeZone: TZ, hour: 'numeric', hourCycle: 'h23' }).format(new Date()));
+    if (KEEP.loadDay && ymdInTZ(new Date()) !== KEEP.loadDay && h >= 3) location.reload();
+  }, 20000);
+  window.addEventListener('resize', function () { if (S.kitchen) renderKitchen(); });
 
   function openKidSettings() {
     var conf = JSON.parse(JSON.stringify(kc()));
@@ -3081,6 +3222,9 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
   var hsh = (location.hash || '').replace('#', '');
   if (hsh === 'kids-mode') S.kidMode = true;
   if (S.kidMode || hsh === 'kids') go('kids');
+  try { if (localStorage.getItem('colibri-kitchen') === '1') S.kitchen = true; } catch (e) {}
+  if (hsh === 'kitchen') S.kitchen = true;
+  if (S.kitchen) setKitchen(true);
   render();
   setInterval(function () { var now = ymdInTZ(new Date()); if (now !== S.today) { S.today = now; startWatches(); } render(); }, 60000);
   var hasClaude = typeof window.claude !== 'undefined' && window.claude && typeof window.claude.use === 'function';
