@@ -1533,6 +1533,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
       body.appendChild(r);
     }
     (res.watch || []).forEach(function (w) { var wb = el('div', 'warnbox'); wb.appendChild(el('span', null, w)); body.appendChild(wb); });
+    if (Array.isArray(res.sources) && res.sources.length) body.appendChild(el('span', 'srcline', 'Sources: ' + res.sources.join(' · ')));
     body.appendChild(el('span', 'srcline', label));
   }
 
@@ -1552,12 +1553,12 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
       if (t.live) optionsInto(body, t.live, 'Live prices · searched ' + relDay(S.today, ymdInTZ(new Date(t.live.at))).toLowerCase() + ' at ' + fmtTime(new Date(t.live.at)));
       else if (t.estimate) optionsInto(body, t.estimate, 'Estimate from Claude, not live prices · ' + relDay(S.today, ymdInTZ(new Date(t.estimate.at))).toLowerCase() + ' at ' + fmtTime(new Date(t.estimate.at)));
       else body.appendChild(el('div', 'empty', sampleFn ? 'No prices yet. Compare to see cash against your miles and points.' : 'Price comparisons run inside Claude.'));
-      if (t.status === 'searching') { var wb = el('div', 'warnbox'); wb.appendChild(el('span', null, 'Live search asked ' + relDay(S.today, ymdInTZ(new Date(t.requestedAt || Date.now()))).toLowerCase() + '. Colibrí posts real fares and award space here once it runs the search.')); body.appendChild(wb); }
+      if (t.status === 'searching') { var wb = el('div', 'warnbox'); wb.appendChild(el('span', null, 'Live search asked ' + relDay(S.today, ymdInTZ(new Date(t.requestedAt || Date.now()))).toLowerCase() + '. The travel desk checks live fares (Expedia) and award seats (seats.aero) at 7 am and 6 pm and posts them here.')); body.appendChild(wb); }
       var row = el('div'); row.style.cssText = 'display:flex;gap:10px;flex-wrap:wrap';
       if (sampleFn) { var eb = el('button', 'btn', t.estimate ? 'Compare again' : 'Compare with Claude'); eb.type = 'button'; eb.addEventListener('click', function () { estimateTrip(id); }); row.appendChild(eb); }
       if (t.status !== 'searching' && t.status !== 'booked') {
         var lb = el('button', 'btn primary', 'Get live prices'); lb.type = 'button';
-        lb.addEventListener('click', function () { tripSave(id, { status: 'searching', requestedAt: new Date().toISOString() }); toast('Asked Colibrí for live prices'); openTrip(id, false, true); });
+        lb.addEventListener('click', function () { tripSave(id, { status: 'searching', requestedAt: new Date().toISOString() }); toast('Queued for the 7 am / 6 pm travel desk'); openTrip(id, false, true); });
         row.appendChild(lb);
       }
       body.appendChild(row);
