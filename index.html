@@ -813,7 +813,7 @@ if (typeof module !== 'undefined') module.exports = { normEvents: normEvents, ev
       { code: 'AA', label: 'Keep Platinum', current: 71000, target: 75000, unit: 'Loyalty Points', note: 'Sample. Status year ends Feb 28.' },
       { code: 'IHG', label: 'Next Milestone Reward', current: 14, target: 20, unit: 'nights', note: 'Sample.' }
     ] };
-    s['trips/ex-trip-1'] = { from: 'SYR', to: 'MTY', depart: addDays(t, 55), ret: addDays(t, 60), who: ['daniel', 'andrea', 'nicolas', 'dany', 'montse'], cabin: 'economy', flex: true, notes: 'Sample trip: visiting family.', status: 'estimated', createdAt: iso(t, '08:00'), by: 'daniel', example: true,
+    s['trips/ex-trip-1'] = { from: 'SYR', to: 'MTY', depart: addDays(t, 55), ret: addDays(t, 60), who: ['daniel', 'andrea', 'nicolas', 'dany', 'montse'], cabin: 'economy', flex: true, hotel: { need: true, rooms: 2, area: '' }, notes: 'Sample trip: visiting family.', status: 'estimated', createdAt: iso(t, '08:00'), by: 'daniel', example: true,
       estimate: { at: iso(t, '08:01'), summary: 'Sample estimate: AA miles cover the whole family at a good value, but one paid AA fare would finish the Platinum requalification.',
         options: [
           { id: 'a', kind: 'miles', program: 'AA', title: 'AA miles, whole family', perPerson: '25,000–35,000 miles round trip', total: '5 seats', points: 150000, fees: 'about $60 total', cpp: 1.5, notes: 'Sample numbers. Needs more AA miles than this sample balance, so pair with option C for one or two seats.', lp: 'Earns no Loyalty Points' },
@@ -822,7 +822,15 @@ if (typeof module !== 'undefined') module.exports = { normEvents: normEvents, ev
         ],
         recommend: { id: 'b', why: 'Sample reasoning: paying cash for this trip requalifies AA Platinum, which is worth more than the points saved. Keep the miles for a pricier trip.' },
         card: { name: 'Citi AAdvantage', why: 'Sample: AA purchases earn extra miles and Loyalty Points.' },
-        watch: ['Sample: holiday dates fill up; award space is thin close in.'] } };
+        watch: ['Sample: holiday dates fill up; award space is thin close in.'],
+        hotels: { summary: 'Sample: IHG points give the best value for two rooms; a family suite is the cash pick.',
+          options: [
+            { id: 'h1', kind: 'points', program: 'IHG', title: 'Holiday Inn-type hotel, 2 rooms', perNight: 'about 15,000 points per room', total: '150,000 points for 2 rooms, 5 nights', points: 150000, fees: '', cpp: 0.7, notes: 'Sample numbers. Book direct so the stay counts toward IHG status.', lp: 'IHG elite: possible upgrade' },
+            { id: 'h2', kind: 'cash', program: 'Cash', title: 'Family suite, 1 room', perNight: 'about $190', total: 'about $950 for 5 nights', points: 0, fees: 'taxes included', cpp: 0, notes: 'Sample. One suite sleeps 5.', lp: '' },
+            { id: 'h3', kind: 'transfer', program: 'WOH', title: 'Hyatt via Bilt transfer', perNight: 'about 12,000 points per room', total: '120,000 points for 2 rooms', points: 120000, fees: '', cpp: 1.4, notes: 'Sample. Confirm award rooms before transferring.', lp: '' }
+          ],
+          recommend: { id: 'h2', why: 'Sample reasoning: one suite for the family costs less than two rooms and keeps points for later.' },
+          watch: ['Sample: most rooms hold 4 people.'] } } };
     s['avatars/family'] = { daniel: 'monarch', andrea: 'cardinal', nicolas: 'fox', dany: 'owl', montse: 'axolotl', motion: true };
     var A = { outside: [10, 30, 'Played outside 30 min', 'outside'], read: [8, 20, 'Read for 20 minutes', 'read'], bed: [3, 0, 'Make your bed', 'chores'], toys: [3, 0, 'Put toys away', 'chores'], table: [4, 0, 'Set and clear the table', 'chores'], room: [6, 0, 'Tidy your room', 'chores'], dishes: [6, 0, 'Unload the dishwasher', 'chores'], helped: [6, 0, 'Helped someone', 'help'], cook: [6, 0, 'Helped cook dinner', 'help'], homework: [6, 0, 'Homework, no reminders', 'learn'], practice: [8, 20, 'Practiced a sport or instrument', 'learn'], kind: [5, 0, 'Did something kind', 'kind'] };
     var logs = [['dany', -3, 'outside', 'approved'], ['dany', -3, 'read', 'approved'], ['dany', -3, 'room', 'approved'], ['dany', -2, 'outside', 'approved'], ['dany', -2, 'homework', 'approved'], ['dany', -1, 'read', 'approved'], ['dany', -1, 'practice', 'approved'], ['dany', -1, 'table', 'approved'], ['dany', 0, 'dishes', 'approved'], ['dany', 0, 'read', 'approved'],
@@ -1447,6 +1455,17 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
       var fl = el('div', 'q-row'); fl.style.padding = '4px 0'; var flm = el('div', 'main'); flm.appendChild(el('b', null, 'Flexible dates')); flm.appendChild(el('span', null, 'Look a few days either side for cheaper fares or award space')); fl.appendChild(flm);
       var tg = el('button', 'toggle'); tg.type = 'button'; tg.setAttribute('aria-label', 'Flexible dates'); tg.setAttribute('aria-pressed', 'true');
       tg.addEventListener('click', function () { f.flex = !f.flex; tg.setAttribute('aria-pressed', f.flex ? 'true' : 'false'); }); fl.appendChild(tg); body.appendChild(fl);
+      f.hotel = true; f.rooms = 2;
+      var hrow = el('div', 'q-row'); hrow.style.padding = '4px 0'; var hm = el('div', 'main'); hm.appendChild(el('b', null, 'Hotel too')); hm.appendChild(el('span', null, 'Compare cash with IHG, Hyatt and Hilton points')); hrow.appendChild(hm);
+      var htg = el('button', 'toggle'); htg.type = 'button'; htg.setAttribute('aria-label', 'Hotel too'); htg.setAttribute('aria-pressed', 'true'); hrow.appendChild(htg); body.appendChild(hrow);
+      var hopts = el('div'); hopts.style.cssText = 'display:flex;flex-direction:column;gap:10px';
+      var rchips = el('div', 'chips'), rBtns = [];
+      [1, 2, 3].forEach(function (n) { var b = el('button', 'chip', n === 1 ? '1 room or suite' : n + ' rooms'); b.type = 'button'; rBtns.push([n, b]); b.addEventListener('click', function () { f.rooms = n; paintRooms(); }); rchips.appendChild(b); });
+      function paintRooms() { rBtns.forEach(function (c) { var on = c[0] === f.rooms; c[1].setAttribute('aria-pressed', on ? 'true' : 'false'); c[1].style.borderColor = on ? 'var(--teal)' : ''; c[1].style.fontWeight = on ? '700' : ''; c[1].style.background = on ? 'var(--teal-soft)' : ''; }); }
+      paintRooms(); hopts.appendChild(rchips);
+      var iArea = inp('text', '', 'Area (optional), e.g. near family or downtown');
+      hopts.appendChild(box('Where to stay', iArea)); body.appendChild(hopts);
+      htg.addEventListener('click', function () { f.hotel = !f.hotel; htg.setAttribute('aria-pressed', f.hotel ? 'true' : 'false'); hopts.hidden = !f.hotel; });
       var iNotes = el('textarea'); iNotes.placeholder = 'Visiting family, want morning flights, 2 checked bags each…';
       body.appendChild(box('Notes (optional)', iNotes));
       var msg = el('p', 'note', ''); body.appendChild(msg);
@@ -1462,7 +1481,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
         if (iRet.value && iRet.value < iDep.value) { msg.textContent = 'The return is before the leave date.'; iRet.focus(); return; }
         if (!f.who.length) { msg.textContent = 'Pick who is going.'; return; }
         var id = 't-' + Date.now().toString(36);
-        tripSave(id, { from: A.code, to: B.code, fromName: A.city || A.name, toName: B.city || B.name, fromAirport: apLabel(A), toAirport: apLabel(B), depart: iDep.value, ret: iRet.value || null, who: TRAVELERS.filter(function (p) { return f.who.indexOf(p) >= 0; }), cabin: f.cabin, flex: f.flex, notes: iNotes.value.trim(), status: 'idea', createdAt: new Date().toISOString(), by: 'daniel' });
+        tripSave(id, { from: A.code, to: B.code, fromName: A.city || A.name, toName: B.city || B.name, fromAirport: apLabel(A), toAirport: apLabel(B), depart: iDep.value, ret: iRet.value || null, who: TRAVELERS.filter(function (p) { return f.who.indexOf(p) >= 0; }), cabin: f.cabin, flex: f.flex, hotel: f.hotel && iRet.value ? { need: true, rooms: f.rooms, area: iArea.value.trim() } : null, notes: iNotes.value.trim(), status: 'idea', createdAt: new Date().toISOString(), by: 'daniel' });
         closeSheet(true);
         openTrip(id, canEst);
       });
@@ -1484,11 +1503,12 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
       '- Factor AA Loyalty Points: a paid AA fare earns them, an award does not. Say when paying cash would get Daniel to his AA status goal.\n' +
       '- Transfers cannot be undone: any transfer option must say to confirm award space first.\n' +
       '- Name the card to pay cash or award fees with, and why. Be brief and concrete. 2 to 4 options.\n\n' +
+      (t.hotel && t.hotel.need && t.ret ? 'HOTEL\nAlso compare a hotel in ' + (t.toName || t.to) + (t.hotel.area ? ' (' + t.hotel.area + ')' : '') + ', ' + t.depart + ' to ' + t.ret + ', ' + t.hotel.rooms + ' room(s) for ' + n + ' people (most rooms hold 4, so 5 people need 2 rooms or a suite). Compare cash with IHG, Hyatt and Hilton points (balances above; Daniel is IHG Platinum Elite); Bilt transfers 1:1 to Hyatt, IHG and Hilton, Amex 1:2 to Hilton. Give cents per point, mention elite perks only when you are sure, and say booking direct keeps elite credit. Estimates only.\n\n' : '') +
       'Reply with JSON only, exactly this shape:\n' +
-      '{"summary": "one sentence", "options": [{"id": "a", "kind": "cash" | "miles" | "transfer" | "mix", "program": "AA", "title": "short name", "perPerson": "e.g. $380–$520 round trip", "total": "e.g. about $2,200 for 5", "points": 0, "fees": "e.g. about $56 total", "cpp": 1.5, "notes": "one or two sentences", "lp": "Loyalty Points effect, or empty"}], "recommend": {"id": "a", "why": "two sentences"}, "card": {"name": "card name", "why": "one sentence"}, "watch": ["short caution", "..."]}';
+      '{"summary": "one sentence", "options": [{"id": "a", "kind": "cash" | "miles" | "transfer" | "mix", "program": "AA", "title": "short name", "perPerson": "e.g. $380–$520 round trip", "total": "e.g. about $2,200 for 5", "points": 0, "fees": "e.g. about $56 total", "cpp": 1.5, "notes": "one or two sentences", "lp": "Loyalty Points effect, or empty"}], "recommend": {"id": "a", "why": "two sentences"}, "card": {"name": "card name", "why": "one sentence"}, "watch": ["short caution", "..."]' + (t.hotel && t.hotel.need && t.ret ? ', "hotels": {"summary": "one sentence", "options": [{"id": "h1", "kind": "cash" | "points" | "transfer", "program": "IHG", "title": "hotel or type of hotel", "perNight": "e.g. $120–$160 per room", "total": "e.g. about $1,400 for 2 rooms, 5 nights", "points": 0, "fees": "", "cpp": 0.6, "notes": "one or two sentences", "lp": "elite perk or empty"}], "recommend": {"id": "h1", "why": "two sentences"}, "watch": ["short caution"]}' : '') + '}';
   }
 
-  var tripCtrl = null;
+  var tripCtrl = null, tripTab = {};
   function estimateTrip(id) {
     var t = S.trips.filter(function (x) { return x.id === id; })[0]; if (!t || !sampleFn) return;
     tripCtrl = { busy: true, id: id, ac: (typeof AbortController !== 'undefined') ? new AbortController() : null };
@@ -1497,6 +1517,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     sampleFn.json(travelPrompt(t), opts).then(function (r) {
       if (!r || !Array.isArray(r.options)) throw { code: 'bad_json' };
       var est = { at: new Date().toISOString(), summary: String(r.summary || ''), options: r.options.slice(0, 4), recommend: r.recommend || null, card: r.card || null, watch: Array.isArray(r.watch) ? r.watch.slice(0, 4) : [] };
+      if (r.hotels && Array.isArray(r.hotels.options)) est.hotels = { summary: String(r.hotels.summary || ''), options: r.hotels.options.slice(0, 4), recommend: r.hotels.recommend || null, watch: Array.isArray(r.hotels.watch) ? r.hotels.watch.slice(0, 3) : [] };
       tripCtrl = null;
       tripSave(id, { estimate: est, status: t.status === 'options' || t.status === 'booked' || t.status === 'searching' ? t.status : 'estimated' });
       if (!$('sheet').hidden) openTrip(id, false, true);
@@ -1521,6 +1542,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
       if (o.cpp) nums.appendChild(el('span', null, Number(o.cpp).toFixed(1) + '¢ per point'));
       c.appendChild(nums);
       if (o.perPerson) c.appendChild(el('p', null, 'Per person: ' + o.perPerson));
+      if (o.perNight) c.appendChild(el('p', null, 'Per night: ' + o.perNight));
       if (o.notes) c.appendChild(el('p', null, o.notes));
       if (o.lp) c.appendChild(el('span', 'lp', o.lp));
       if (o.url && /^https:\/\//.test(o.url)) { var a = el('a', null, 'Open this fare ›'); a.href = o.url; a.target = '_blank'; a.rel = 'noopener'; a.style.cssText = 'font-size:13px;font-weight:600;color:var(--teal)'; c.appendChild(a); }
@@ -1541,7 +1563,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     var t = S.trips.filter(function (x) { return x.id === id; })[0]; if (!t) return;
     var build = function (body) {
       var h = el('div', 'sh-head'); var d = el('div', 'bigdate'); d.appendChild(el('span', null, fmtDay(t.depart, 'short').split(',')[0].toUpperCase())); d.appendChild(el('b', null, String(Number(t.depart.slice(8, 10))))); h.appendChild(d);
-      var m = el('div', 'main'); m.appendChild(el('h2', null, t.from + ' → ' + t.to)); if (t.toName) m.appendChild(el('span', null, (t.fromName || t.from) + ' to ' + t.toName)); m.appendChild(el('span', null, tripDates(t))); m.appendChild(el('span', null, tripWho(t) + ' · ' + CABINS[t.cabin || 'economy'] + (t.flex ? ' · flexible' : ''))); h.appendChild(m);
+      var m = el('div', 'main'); m.appendChild(el('h2', null, t.from + ' → ' + t.to)); if (t.toName) m.appendChild(el('span', null, (t.fromName || t.from) + ' to ' + t.toName)); m.appendChild(el('span', null, tripDates(t))); m.appendChild(el('span', null, tripWho(t) + ' · ' + CABINS[t.cabin || 'economy'] + (t.flex ? ' · flexible' : '') + (t.hotel && t.hotel.need ? ' · hotel, ' + t.hotel.rooms + (t.hotel.rooms === 1 ? ' room' : ' rooms') : ''))); h.appendChild(m);
       var x = el('button', 'x'); x.type = 'button'; x.setAttribute('aria-label', 'Close'); html(x, ICON.x); x.addEventListener('click', closeSheet); h.appendChild(x); body.appendChild(h);
       if (t.notes) body.appendChild(el('p', 'note', t.notes)).style.margin = '0';
       var busy = tripCtrl && tripCtrl.id === id;
@@ -1550,8 +1572,25 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
         if (tripCtrl.ac) { var stop = el('button', 'btn', 'Stop'); stop.type = 'button'; stop.addEventListener('click', function () { tripCtrl.ac.abort(); }); body.appendChild(stop); }
         return;
       }
-      if (t.live) optionsInto(body, t.live, 'Live prices · searched ' + relDay(S.today, ymdInTZ(new Date(t.live.at))).toLowerCase() + ' at ' + fmtTime(new Date(t.live.at)));
-      else if (t.estimate) optionsInto(body, t.estimate, 'Estimate from Claude, not live prices · ' + relDay(S.today, ymdInTZ(new Date(t.estimate.at))).toLowerCase() + ' at ' + fmtTime(new Date(t.estimate.at)));
+      var res = t.live || t.estimate;
+      var label = t.live ? 'Live prices · searched ' + relDay(S.today, ymdInTZ(new Date(t.live.at))).toLowerCase() + ' at ' + fmtTime(new Date(t.live.at))
+        : t.estimate ? 'Estimate from Claude, not live prices · ' + relDay(S.today, ymdInTZ(new Date(t.estimate.at))).toLowerCase() + ' at ' + fmtTime(new Date(t.estimate.at)) : '';
+      var tab = tripTab[id] || 'flights';
+      if (t.ret) {
+        var seg = el('div', 'lg-seg'), bF = el('button', null, 'Flights'), bH = el('button', null, 'Hotels');
+        [[bF, 'flights'], [bH, 'hotels']].forEach(function (x) { x[0].type = 'button'; x[0].setAttribute('aria-pressed', String(tab === x[1])); x[0].addEventListener('click', function () { tripTab[id] = x[1]; openTrip(id, false, true); }); seg.appendChild(x[0]); });
+        body.appendChild(seg);
+      }
+      if (tab === 'hotels' && t.ret) {
+        var hs = res && res.hotels;
+        if (hs && hs.options && hs.options.length) optionsInto(body, hs, label);
+        else if (!(t.hotel && t.hotel.need)) {
+          body.appendChild(el('div', 'empty', 'No hotel search on this trip yet.'));
+          var ah = el('button', 'btn primary', 'Search hotels too'); ah.type = 'button';
+          ah.addEventListener('click', function () { tripSave(id, { hotel: { need: true, rooms: tripTravelers(t) > 4 ? 2 : 1, area: '' }, status: 'searching', requestedAt: new Date().toISOString() }); toast('Hotels queued for the travel desk'); openTrip(id, false, true); });
+          body.appendChild(ah);
+        } else body.appendChild(el('div', 'empty', t.status === 'searching' ? 'Hotel prices arrive with the next travel desk run.' : (sampleFn ? 'Compare with Claude or get live prices to see hotels.' : 'Tap Get live prices to see hotels.')));
+      } else if (res) optionsInto(body, res, label);
       else body.appendChild(el('div', 'empty', sampleFn ? 'No prices yet. Compare to see cash against your miles and points.' : 'Price comparisons run inside Claude.'));
       if (t.status === 'searching') { var wb = el('div', 'warnbox'); wb.appendChild(el('span', null, 'Live search asked ' + relDay(S.today, ymdInTZ(new Date(t.requestedAt || Date.now()))).toLowerCase() + '. The travel desk checks live fares (Expedia) and award seats (seats.aero) at 7 am and 6 pm and posts them here.')); body.appendChild(wb); }
       var row = el('div'); row.style.cssText = 'display:flex;gap:10px;flex-wrap:wrap';
