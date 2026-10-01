@@ -351,6 +351,13 @@ body:not(.v-home):not(.v-cal) .fab, body.kidmode .fab { display: none; }
 .fl-lab.center { font-weight: 700; letter-spacing: 0; color: var(--teal-strong); }
 .fl.multi .fl-time { font-size: 15px; }
 .fl.multi .fl-end { min-width: 46px; }
+.fl-shift { font-style: normal; font-size: 11px; font-weight: 800; padding: 1px 7px; border-radius: 999px; background: var(--amber-soft); color: var(--amber-ink); }
+.fl-dir { flex-wrap: wrap; }
+.tsrc { font-size: 12px; line-height: 1.4; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tsrc i { display: inline-block; width: 8px; height: 8px; border-radius: 4px; margin-right: 6px; vertical-align: 1px; }
+.tsrc i.fresh { background: var(--teal); } .tsrc i.aging { background: var(--amber); } .tsrc i.stale { background: var(--red); }
+.tsrc b { font-weight: 800; color: var(--ink); }
+.tsrc .short { color: var(--red-ink); font-weight: 700; }
 .thinking { display: flex; gap: 10px; align-items: center; padding: 12px 14px; border-radius: 14px; background: var(--sunk); font-size: 14px; color: var(--muted); }
 .thinking i { width: 18px; height: 18px; border-radius: 50%; border: 3px solid var(--line); border-top-color: var(--teal); animation: spin 1s linear infinite; flex-shrink: 0; }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -1819,7 +1826,13 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     var x = new Date(d + 'T12:00:00');
     return x.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
   }
-  function flightStrip(leg) {
+  function dayShift(leg, trip) {
+    if (!trip || !leg.date) return 0;
+    var want = leg.dir === 'back' ? trip.ret : trip.depart;
+    if (!want || !/^\d{4}-\d{2}-\d{2}$/.test(want) || !/^\d{4}-\d{2}-\d{2}$/.test(leg.date)) return 0;
+    return Math.round((new Date(leg.date + 'T12:00:00') - new Date(want + 'T12:00:00')) / 864e5);
+  }
+  function flightStrip(leg, trip) {
     var stops = Array.isArray(leg.stops) ? leg.stops : [];
     var n = stops.length;
     var box = el('div', 'fl' + (n > 1 ? ' multi' : ''));
@@ -1827,6 +1840,8 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     var hl = el('div', 'fl-dir');
     hl.appendChild(el('b', null, leg.dir === 'back' ? 'Return' : 'Outbound'));
     if (leg.date) hl.appendChild(el('span', null, legDate(leg.date)));
+    var sh = dayShift(leg, trip);
+    if (sh) hl.appendChild(el('em', 'fl-shift', Math.abs(sh) + (Math.abs(sh) === 1 ? ' day ' : ' days ') + (sh < 0 ? 'early' : 'later')));
     head.appendChild(hl);
     var badges = el('div', 'fl-badges');
     var sb = el('span', 'fl-badge ' + (n === 0 ? 'ok' : n === 1 ? 'one' : 'many'));
@@ -1876,10 +1891,10 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     if (foot.textContent) box.appendChild(foot);
     return box;
   }
-  function flightStrips(o) {
+  function flightStrips(o, trip) {
     if (!Array.isArray(o.legs) || !o.legs.length) return null;
     var w = el('div', 'fls');
-    o.legs.slice(0, 4).forEach(function (l) { if (l && (l.from || l.to)) w.appendChild(flightStrip(l)); });
+    o.legs.slice(0, 4).forEach(function (l) { if (l && (l.from || l.to)) w.appendChild(flightStrip(l, trip)); });
     return w.childNodes.length ? w : null;
   }
 
@@ -1932,6 +1947,29 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     if (iconKey) html(c, TICON[iconKey]);
     c.appendChild(el('span', null, text)); return c;
   }
+  function agoText(iso) {
+    var t = Date.parse(iso || ''); if (isNaN(t)) return '';
+    var m = Math.max(0, Math.round((Date.now() - t) / 60000));
+    if (m < 60) return m <= 1 ? 'just now' : m + ' min ago';
+    var h = Math.round(m / 60); if (h < 24) return h + 'h ago';
+    var d = Math.round(h / 24); return d === 1 ? 'yesterday' : d + ' days ago';
+  }
+  function awardTag(o) {
+    var a = o.award; if (!a || !a.source) return null;
+    var tag = el('div', 'tsrc');
+    var dot = el('i'); var age = Date.parse(a.seen || '');
+    var hrs = isNaN(age) ? 999 : (Date.now() - age) / 36e5;
+    dot.className = hrs <= 24 ? 'fresh' : hrs <= 72 ? 'aging' : 'stale';
+    tag.appendChild(dot);
+    tag.appendChild(el('b', null, a.source));
+    var bits = [];
+    var ago = agoText(a.seen); if (ago) bits.push('seen ' + ago);
+    var n = Number(a.seats);
+    bits.push(n > 0 ? (n >= 9 ? '9+ seats' : n + (n === 1 ? ' seat' : ' seats')) : 'seats unknown');
+    tag.appendChild(document.createTextNode(' · ' + bits.join(' · ')));
+    if (n > 0 && a.party && n < a.party) tag.appendChild(el('span', 'short', ' · not enough for ' + a.party));
+    return tag;
+  }
   function optValue(o) {
     if (o.points) {
       var v = el('div', 'tval'); v.appendChild(el('b', null, num(o.points))); v.appendChild(el('small', null, ' pts'));
@@ -1970,7 +2008,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     card.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } });
   }
 
-  function optionsInto(body, res, label, hotel) {
+  function optionsInto(body, res, label, hotel, trip) {
     var opts = (res.options || []).slice(0, 4);
     var recId = res.recommend && res.recommend.id;
     var best = opts.filter(function (o) { return o.id === recId; })[0] || null;
@@ -1988,7 +2026,8 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
       var v = optValue(best); mid.appendChild(v.node); if (v.sub) mid.appendChild(el('span', 'tsub', v.sub));
       row.appendChild(mid); hero.appendChild(row);
       var chips = el('div', 'tchips'); optChips(best, chips, hotel); if (chips.childNodes.length) hero.appendChild(chips);
-      var fsb = flightStrips(best); if (fsb) hero.appendChild(fsb);
+      var atb = awardTag(best); if (atb) hero.appendChild(atb);
+      var fsb = flightStrips(best, trip); if (fsb) hero.appendChild(fsb);
       var why = res.recommend && res.recommend.why;
       if (why) hero.appendChild(el('p', 'twhy', firstSentence(why)));
       var more = optMore(best);
@@ -2020,7 +2059,8 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
         c.appendChild(el('div', 'topt-title', o.title || KIND_LABEL[k]));
         var v = optValue(o); c.appendChild(v.node); if (v.sub) c.appendChild(el('span', 'tsub', v.sub));
         var chips = el('div', 'tchips'); optChips(o, chips, hotel); if (chips.childNodes.length) c.appendChild(chips);
-        var fs = flightStrips(o); if (fs) c.appendChild(fs);
+        var at = awardTag(o); if (at) c.appendChild(at);
+        var fs = flightStrips(o, trip); if (fs) c.appendChild(fs);
         expandable(c, optMore(o));
         grid.appendChild(c);
       });
@@ -2062,14 +2102,14 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
       }
       if (tab === 'hotels' && t.ret) {
         var hs = res && res.hotels;
-        if (hs && hs.options && hs.options.length) optionsInto(body, hs, label, true);
+        if (hs && hs.options && hs.options.length) optionsInto(body, hs, label, true, t);
         else if (!(t.hotel && t.hotel.need)) {
           body.appendChild(el('div', 'empty', 'No hotel search on this trip yet.'));
           var ah = el('button', 'btn primary', 'Search hotels too'); ah.type = 'button';
           ah.addEventListener('click', function () { tripSave(id, { hotel: { need: true, rooms: tripTravelers(t) > 4 ? 2 : 1, area: '' }, status: 'searching', requestedAt: new Date().toISOString() }); toast('Hotels queued for the travel desk'); openTrip(id, false, true); });
           body.appendChild(ah);
         } else body.appendChild(el('div', 'empty', t.status === 'searching' ? 'Hotel prices arrive with the next travel desk run.' : (sampleFn ? 'Compare with Claude or get live prices to see hotels.' : 'Tap Get live prices to see hotels.')));
-      } else if (res) optionsInto(body, res, label);
+      } else if (res) optionsInto(body, res, label, false, t);
       else body.appendChild(el('div', 'empty', sampleFn ? 'No prices yet. Compare to see cash against your miles and points.' : 'Price comparisons run inside Claude.'));
       if (t.status === 'searching') { var wb = el('div', 'warnbox'); wb.appendChild(el('span', null, 'Live search asked ' + relDay(S.today, ymdInTZ(new Date(t.requestedAt || Date.now()))).toLowerCase() + '. The travel desk checks live fares (Expedia) and award seats (seats.aero) at 7 am and 6 pm and posts them here.')); body.appendChild(wb); }
       var row = el('div'); row.style.cssText = 'display:flex;gap:10px;flex-wrap:wrap';
