@@ -15,6 +15,7 @@
 <style>:root{padding-top:env(safe-area-inset-top,0px);}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
+<script src="config.js"></script>
 <title>Colibrí</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -244,6 +245,14 @@ body:not(.v-home):not(.v-cal) .fab, body.kidmode .fab { display: none; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .thinking i { animation: none; } }
 /* sheet */
+.gate { position: fixed; inset: 0; z-index: 40; background: var(--bg); display: flex; align-items: center; justify-content: center; padding: 24px; }
+.gate[hidden] { display: none; }
+.gate-card { width: 100%; max-width: 360px; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
+.gate-card h1 { font-family: var(--display); font-size: 34px; margin: 0; }
+.gate-card p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.45; }
+.gate-card .btn { width: 100%; flex: none; }
+.gate-mark { border-radius: 24px; }
+.gate-demo { font-size: 13px; color: var(--muted); }
 .scrim { position: fixed; inset: 0; background: var(--scrim); z-index: 20; }
 .sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 21; background: var(--surface); border-radius: 26px 26px 0 0; padding: 10px 18px calc(24px + env(safe-area-inset-bottom, 0px)); max-height: 88vh; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; max-width: 520px; margin: 0 auto; }
 .sheet .handle { align-self: center; width: 40px; height: 5px; border-radius: 3px; background: var(--line); flex-shrink: 0; }
@@ -513,6 +522,7 @@ body.kidmode .kid-hero .name { font-size: 28px; }
     <div class="sec"><h2>Family</h2></div>
     <div class="card">
       <button class="list-btn" type="button" id="open-avatars"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg><span>Avatars<small>Pick one for each of you and the kids</small></span></button>
+      <button class="list-btn" type="button" id="sign-out" hidden><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 17l5-5-5-5M15 12H4"></path></svg><span>Sign out<small>Colibrí on this phone</small></span></button>
       <button class="list-btn" type="button" id="open-ledger"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"></path></svg><span>Household ledger<small>Every purchase, by budget line</small></span></button>
     </div>
     <p class="note">Prototype. Calendar and bills are live; budget and points are copied from your main Colibrí app.</p>
@@ -531,6 +541,10 @@ body.kidmode .kid-hero .name { font-size: 28px; }
 </nav>
 
 <form class="composer" id="composer" hidden autocomplete="off"><div class="inner"><input id="chat-input" aria-label="Ask Colibrí" placeholder="Ask about your week, bills, anything"><button class="send" id="send" type="submit" aria-label="Send"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button></div></form>
+<div class="gate" id="gate" hidden><div class="gate-card"><img class="gate-mark" src="icon-192.png" width="88" height="88" alt="" aria-hidden="true">
+<h1>Colibrí</h1><p id="gate-msg">Opening Colibrí…</p>
+<button class="btn primary" type="button" id="gate-btn" hidden>Sign in with Google</button>
+<a class="gate-demo" href="?demo=1">See the demo with sample data</a></div></div>
 <div class="scrim" id="scrim" hidden></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Details" hidden><div class="handle"></div><div id="sheet-body" style="display:flex;flex-direction:column;gap:16px"></div></div>
 <div class="toast" id="toast" role="status" hidden></div>
@@ -997,6 +1011,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
   /* ---------- Views ---------- */
   var STANDALONE = !(window.claude && typeof window.claude.use === 'function');
   document.body.classList.add('v-home');
+  var ME = 'daniel', LIVE = null;
   function go(view, fromPop) {
     if (STANDALONE && !fromPop && view !== S.view) { try { history.pushState({ v: view }, ''); } catch (e) {} }
     S.view = view;
@@ -1017,11 +1032,11 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     $('app').classList.toggle('still', !S.avatars.motion);
     $('sheet').classList.toggle('still', !S.avatars.motion);
     html($('mark'), avSvg('colibri', 30));
-    html($('my-av'), avSvg(S.avatars.daniel, 32));
-    html($('her-av'), avSvg(S.avatars.andrea, 32));
+    html($('my-av'), avSvg(S.avatars[ME === 'andrea' ? 'andrea' : 'daniel'], 32));
+    html($('her-av'), avSvg(S.avatars[ME === 'andrea' ? 'daniel' : 'andrea'], 32));
     $('date').textContent = fmtDay(S.today, 'long');
     var h = Number(new Intl.DateTimeFormat('en-US', { timeZone: TZ, hour: 'numeric', hour12: false }).format(new Date()));
-    $('hello').textContent = (h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches') + ', Daniel';
+    $('hello').textContent = (h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches') + ', ' + (PEOPLE[ME] || 'Daniel');
   }
 
   function nextUp() {
@@ -1481,7 +1496,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
         if (iRet.value && iRet.value < iDep.value) { msg.textContent = 'The return is before the leave date.'; iRet.focus(); return; }
         if (!f.who.length) { msg.textContent = 'Pick who is going.'; return; }
         var id = 't-' + Date.now().toString(36);
-        tripSave(id, { from: A.code, to: B.code, fromName: A.city || A.name, toName: B.city || B.name, fromAirport: apLabel(A), toAirport: apLabel(B), depart: iDep.value, ret: iRet.value || null, who: TRAVELERS.filter(function (p) { return f.who.indexOf(p) >= 0; }), cabin: f.cabin, flex: f.flex, hotel: f.hotel && iRet.value ? { need: true, rooms: f.rooms, area: iArea.value.trim() } : null, notes: iNotes.value.trim(), status: 'idea', createdAt: new Date().toISOString(), by: 'daniel' });
+        tripSave(id, { from: A.code, to: B.code, fromName: A.city || A.name, toName: B.city || B.name, fromAirport: apLabel(A), toAirport: apLabel(B), depart: iDep.value, ret: iRet.value || null, who: TRAVELERS.filter(function (p) { return f.who.indexOf(p) >= 0; }), cabin: f.cabin, flex: f.flex, hotel: f.hotel && iRet.value ? { need: true, rooms: f.rooms, area: iArea.value.trim() } : null, notes: iNotes.value.trim(), status: 'idea', createdAt: new Date().toISOString(), by: ME });
         closeSheet(true);
         openTrip(id, canEst);
       });
@@ -1621,7 +1636,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
 
   /* ---------- Writes (shared state) ---------- */
   function claim(k, choice, f) {
-    var rec = { choice: choice, kind: f.kind, day: f.day, text: f.text, by: 'daniel', at: new Date().toISOString() };
+    var rec = { choice: choice, kind: f.kind, day: f.day, text: f.text, by: ME, at: new Date().toISOString() };
     S.claims[k] = rec; render();
     if (db) db.doc('claims/' + k).set(rec).then(function () { toast('Saved for both of you'); }, function () { delete S.claims[k]; render(); toast("Couldn't save that. Try again."); });
   }
@@ -1631,7 +1646,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
   }
   function togglePaid(k, d) {
     if (S.paid[k]) { var old = S.paid[k]; delete S.paid[k]; render(); if (db) db.doc('paid/' + k).delete().then(null, function () { S.paid[k] = old; render(); }); return; }
-    var rec = { by: 'daniel', at: new Date().toISOString(), label: d.brand + (d.last4 ? ' ·' + d.last4 : ''), due: d.due || null };
+    var rec = { by: ME, at: new Date().toISOString(), label: d.brand + (d.last4 ? ' ·' + d.last4 : ''), due: d.due || null };
     S.paid[k] = rec; render();
     if (db) db.doc('paid/' + k).set(rec).then(function () { toast('Marked paid'); }, function () { delete S.paid[k]; render(); toast("Couldn't save that. Try again."); });
   }
@@ -2243,7 +2258,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
       sync();
       go.addEventListener('click', function () {
         var id = kNewId('l');
-        var rec = { kid: S.kid, activity: a.id, label: a.label, cat: a.cat, feathers: a.feathers, green: a.green || 0, day: S.today, at: new Date().toISOString(), status: S.kidMode ? 'pending' : 'approved', by: S.kidMode ? S.kid : 'daniel' };
+        var rec = { kid: S.kid, activity: a.id, label: a.label, cat: a.cat, feathers: a.feathers, green: a.green || 0, day: S.today, at: new Date().toISOString(), status: S.kidMode ? 'pending' : 'approved', by: S.kidMode ? S.kid : ME };
         if (shot.thumb) { rec.photo = shot.thumb; if (shot.check) rec.check = shot.check; }
         kWrite('kids_log', id, rec);
         closeSheet(); toast(S.kidMode ? 'Sent! A grown-up will check it.' : '+' + a.feathers + ' feathers for ' + k.name);
@@ -2262,7 +2277,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
       var go = el('button', 'btn primary', lock ? 'Not yet' : S.kidMode ? 'Ask a grown-up' : (r.type === 'screen' ? 'Start ' + r.minutes + ' min now' : 'Use ' + r.cost + ' feathers')); go.type = 'button'; go.disabled = !!lock;
       go.addEventListener('click', function () {
         var id = kNewId('r'), now = new Date();
-        var rec = { kid: S.kid, reward: r.id, label: r.label, type: r.type, cost: r.cost, minutes: r.minutes || 0, art: r.art, day: S.today, at: now.toISOString(), by: S.kidMode ? S.kid : 'daniel' };
+        var rec = { kid: S.kid, reward: r.id, label: r.label, type: r.type, cost: r.cost, minutes: r.minutes || 0, art: r.art, day: S.today, at: now.toISOString(), by: S.kidMode ? S.kid : ME };
         if (S.kidMode) rec.status = 'pending';
         else if (r.type === 'screen') { rec.status = 'active'; rec.startedAt = now.toISOString(); rec.endsAt = new Date(now.getTime() + r.minutes * 60000).toISOString(); }
         else rec.status = 'approved';
@@ -2478,6 +2493,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
   render();
   setInterval(function () { var now = ymdInTZ(new Date()); if (now !== S.today) { S.today = now; startWatches(); } render(); }, 60000);
   var hasClaude = typeof window.claude !== 'undefined' && window.claude && typeof window.claude.use === 'function';
+  if (!hasClaude && window.COLIBRI_FIREBASE && !/[?&]demo=1/.test(location.search)) { startLive(window.COLIBRI_FIREBASE); return; }
   if (!hasClaude && window.COLIBRI_DEMO) { startDemo(window.COLIBRI_DEMO); return; }
   if (!hasClaude) { S.mcpState = 'none'; S.dbState = 'none'; render(); return; }
   window.claude.use('permissions').then(function (p) { perms = p; }, function () {});
@@ -2515,6 +2531,77 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     db.collection('trips').onSnapshot(function (q) { S.trips = q.docs.map(function (x) { return Object.assign({ id: x.id }, x.data()); }); renderTravel(); }, function () {});
     db.collection('kids_redeem').onSnapshot(function (q) { S.kred = q.docs.map(function (x) { return Object.assign({ id: x.id }, x.data()); }); renderKids(); }, function () {});
   }
+  /* ---------- Live mode: Google sign-in + the family's Firestore database ---------- */
+  function loadScript(src) { return new Promise(function (res, rej) { var x = document.createElement('script'); x.src = src; x.onload = res; x.onerror = rej; document.head.appendChild(x); }); }
+  function fsAdapter(fs) {
+    function snap(x) { return { id: x.id, exists: x.exists, data: function () { return x.data(); } }; }
+    function doc(path) {
+      var r = fs.doc(path);
+      return {
+        set: function (d) { return r.set(d); },
+        update: function (d) { return r.set(d, { merge: true }); },
+        delete: function () { return r.delete(); },
+        get: function () { return r.get().then(snap); },
+        onSnapshot: function (cb, err) { return r.onSnapshot(function (x) { cb(snap(x)); }, err || function () {}); }
+      };
+    }
+    function collection(path) {
+      var c = fs.collection(path);
+      return {
+        doc: function (k) { return doc(path + '/' + k); },
+        onSnapshot: function (cb, err) { return c.onSnapshot(function (q) { cb({ docs: q.docs.map(snap) }); }, err || function () {}); }
+      };
+    }
+    return { doc: doc, collection: collection };
+  }
+  function gate(state, detail) {
+    var g = $('gate'); if (!g) return;
+    g.hidden = state === 'off';
+    if (state === 'off') return;
+    $('gate-msg').textContent = state === 'loading' ? 'Opening Colibrí…' : state === 'signin' ? 'Sign in with the Google account the family uses.' :
+      state === 'denied' ? (detail || 'This account') + ' isn’t on the family list yet. Ask Daniel to add it, or sign in with another account.' :
+      (detail || 'Something went wrong. Check your connection and try again.');
+    $('gate-btn').hidden = state === 'loading';
+    $('gate-btn').textContent = state === 'denied' ? 'Use another account' : 'Sign in with Google';
+  }
+  function startLive(cfg) {
+    var base = 'https://www.gstatic.com/firebasejs/10.12.2/';
+    gate('loading');
+    loadScript(base + 'firebase-app-compat.js').then(function () {
+      return Promise.all([loadScript(base + 'firebase-auth-compat.js'), loadScript(base + 'firebase-firestore-compat.js')]);
+    }).then(function () {
+      firebase.initializeApp(cfg);
+      var auth = firebase.auth(), fs = firebase.firestore();
+      try { fs.settings({ ignoreUndefinedProperties: true, merge: true }); } catch (e) {}
+      try { fs.enablePersistence({ synchronizeTabs: true }).catch(function () {}); } catch (e) {}
+      LIVE = { auth: auth, fs: fs };
+      $('gate-btn').onclick = function () {
+        var p = new firebase.auth.GoogleAuthProvider(); p.setCustomParameters({ prompt: 'select_account' });
+        auth.signInWithPopup(p).catch(function (e) {
+          if (e && /popup/i.test(e.code || '')) auth.signInWithRedirect(p); else gate('error', e && e.message);
+        });
+      };
+      auth.getRedirectResult().catch(function (e) { gate('error', e && e.message); });
+      auth.onAuthStateChanged(function (u) {
+        if (!u) { gate('signin'); return; }
+        fs.doc('meta/access').get().then(function () { enterLive(u, fs); }, function () { gate('denied', u.email); auth.signOut(); });
+      });
+    }, function () { gate('error', 'Couldn’t load sign-in. Check your connection and try again.'); $('gate-btn').onclick = function () { location.reload(); }; });
+  }
+  function enterLive(u, fs) {
+    var first = String(u.displayName || u.email || '').split(/[\s@.]/)[0].toLowerCase();
+    ME = first.indexOf('andrea') === 0 ? 'andrea' : 'daniel';
+    db = fsAdapter(fs); S.dbState = 'ready'; S.mcpState = 'live';
+    gate('off');
+    var so = $('sign-out'); if (so) { so.hidden = false; so.onclick = function () { LIVE.auth.signOut().then(function () { location.reload(); }); }; }
+    subscribeDb();
+    /* Calendar and card alerts are copied in by Colibrí's scheduled tasks. */
+    db.doc('calendar/family').onSnapshot(function (x) { if (x.exists) { var d = x.data(); S.family.raw = d.events || []; S.family.at = Date.parse(d.at) || Date.now(); render(); } });
+    if (ME === 'daniel') db.doc('private_daniel/calendar').onSnapshot(function (x) { if (x.exists) { var d = x.data(); S.mine.raw = d.events || []; S.mine.at = Date.parse(d.at) || Date.now(); render(); } });
+    db.doc('mail/alerts').onSnapshot(function (x) { if (x.exists) { S.mail.alerts = alertsFromPayload(x.data().payload || { threads: [] }); render(); } });
+    render();
+  }
+
   function startDemo(D) {
     S.mine.raw = D.mine(S.today); S.family.raw = D.family(S.today); S.mail.alerts = alertsFromPayload(D.mail(S.today));
     S.mine.at = S.family.at = Date.now(); S.mcpState = 'demo';
