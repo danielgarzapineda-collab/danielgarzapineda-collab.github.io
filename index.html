@@ -247,6 +247,69 @@ body:not(.v-home):not(.v-cal) .fab, body.kidmode .fab { display: none; }
 .rec { border-radius: 16px; padding: 12px 14px; background: var(--teal-soft); color: var(--ink); font-size: 14px; line-height: 1.45; display: flex; flex-direction: column; gap: 6px; }
 .rec b { color: var(--teal); }
 .srcline { font-size: 12px; color: var(--muted); }
+/* travel results: card style (Sep 30) */
+.tres { display: flex; flex-direction: column; gap: 12px; }
+.tlabel { font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+.tlabel.tgap { margin: 4px 2px -4px; }
+.tico { width: 46px; height: 46px; border-radius: 15px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.tico.sm { width: 36px; height: 36px; border-radius: 11px; }
+.tico.sm svg { width: 18px; height: 18px; }
+.k-cash, .k-bed { background: var(--teal-soft); color: var(--teal-strong); }
+.k-miles { background: color-mix(in srgb, var(--p-daniel) 16%, var(--surface)); color: var(--p-daniel); }
+.k-points { background: var(--amber-soft); color: var(--amber-ink); }
+.k-transfer { background: color-mix(in srgb, var(--p-dany) 16%, var(--surface)); color: var(--p-dany); }
+.k-mix { background: var(--sunk); color: var(--ink); }
+.tprog { font-size: 11px; font-weight: 800; letter-spacing: .03em; padding: 2px 7px; border-radius: 6px; background: var(--sunk); color: var(--ink); flex-shrink: 0; }
+.tval { font-variant-numeric: tabular-nums; line-height: 1.05; overflow-wrap: anywhere; }
+.tval b { font-family: var(--display); font-weight: 600; font-size: 22px; }
+.tval small { font-size: 13px; font-weight: 600; color: var(--muted); }
+.tsub { font-size: 12px; color: var(--muted); }
+.tchips { display: flex; gap: 6px; flex-wrap: wrap; }
+.tchip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; background: var(--sunk); color: var(--ink); font-variant-numeric: tabular-nums; max-width: 100%; }
+.tchip span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tchip.good { background: var(--teal-soft); color: var(--teal-strong); }
+.tchip.ok { background: var(--amber-soft); color: var(--amber-ink); }
+.tchip.low { background: var(--red-soft); color: var(--red-ink); }
+.tchip.mute { background: var(--sunk); color: var(--muted); }
+.thint { display: inline-flex; align-items: center; gap: 3px; font-size: 12px; font-weight: 700; color: var(--teal); align-self: flex-start; }
+[aria-expanded="true"] > .thint svg { transform: rotate(180deg); }
+.tmore { display: flex; flex-direction: column; gap: 8px; padding-top: 8px; border-top: 1px solid var(--line-soft); font-size: 13px; line-height: 1.45; }
+.tmore[hidden] { display: none !important; }
+.tmore p { margin: 0; color: var(--muted); }
+.tmore dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; margin: 0; }
+.tmore dt { color: var(--muted); font-weight: 600; }
+.tmore dd { margin: 0; overflow-wrap: anywhere; }
+.tlink { font-weight: 700; color: var(--teal); }
+
+.thero { border: 2px solid var(--teal); border-radius: 20px; background: var(--surface); padding: 14px; display: flex; flex-direction: column; gap: 10px; cursor: pointer; }
+.thero-eb { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; padding: 4px 10px 4px 8px; border-radius: 999px; background: var(--teal); color: var(--on-teal); font-size: 11px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+.thero-row { display: flex; gap: 12px; align-items: center; }
+.thero-mid { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.tname { display: flex; gap: 6px; align-items: center; font-size: 14px; font-weight: 700; min-width: 0; }
+.tname > span:last-child { min-width: 0; overflow-wrap: anywhere; }
+.thero .tval b { font-size: 28px; }
+.twhy { margin: 0; font-size: 14px; line-height: 1.4; color: var(--ink); }
+
+.tpay { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 16px; background: var(--sunk); }
+.tminicard { width: 48px; height: 32px; border-radius: 7px; flex-shrink: 0; position: relative; background: linear-gradient(135deg, var(--teal) 0%, var(--teal-strong) 100%); }
+.tminicard::before { content: ''; position: absolute; left: 7px; top: 9px; width: 11px; height: 8px; border-radius: 2px; background: var(--amber); }
+.tminicard::after { content: ''; position: absolute; left: 7px; right: 7px; bottom: 6px; height: 2px; border-radius: 1px; background: var(--on-teal); opacity: .55; }
+.tpay-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.tpay-main b { font-size: 15px; overflow-wrap: anywhere; }
+.tpay-why { font-size: 12px; color: var(--muted); line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+.tgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.tgrid.one { grid-template-columns: minmax(0, 1fr); }
+.topt { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 6px; min-width: 0; cursor: pointer; }
+.topt[aria-expanded="true"] { grid-column: 1 / -1; }
+.topt-top { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.topt-title { font-size: 13px; font-weight: 700; line-height: 1.25; overflow-wrap: anywhere; }
+.topt .tchips { margin-top: 2px; }
+
+.twatch { display: flex; flex-direction: column; gap: 6px; }
+.twatch-item { display: flex; gap: 8px; align-items: flex-start; padding: 9px 12px; border-radius: 12px; background: var(--amber-soft); color: var(--amber-ink); font-size: 13px; font-weight: 600; line-height: 1.35; }
+.twatch-item svg { margin-top: 1px; }
+@media (max-width: 340px) { .tgrid { grid-template-columns: minmax(0, 1fr); } }
 .thinking { display: flex; gap: 10px; align-items: center; padding: 12px 14px; border-radius: 14px; background: var(--sunk); font-size: 14px; color: var(--muted); }
 .thinking i { width: 18px; height: 18px; border-radius: 50%; border: 3px solid var(--line); border-top-color: var(--teal); animation: spin 1s linear infinite; flex-shrink: 0; }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -1676,10 +1739,10 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
       '- For each points option give cents per point: (cash price - award taxes and fees) / points x 100, using the midpoint of your ranges.\n' +
       '- Factor AA Loyalty Points: a paid AA fare earns them, an award does not. Say when paying cash would get Daniel to his AA status goal.\n' +
       '- Transfers cannot be undone: any transfer option must say to confirm award space first.\n' +
-      '- Name the card to pay cash or award fees with, and why. Be brief and concrete. 2 to 4 options.\n\n' +
+      '- Name the card to pay cash or award fees with, and why. Be brief and concrete: the app shows this as cards, so keep every text field short. 2 to 4 options.\n\n' +
       (t.hotel && t.hotel.need && t.ret ? 'HOTEL\nAlso compare a hotel in ' + (t.toName || t.to) + (t.hotel.area ? ' (' + t.hotel.area + ')' : '') + ', ' + t.depart + ' to ' + t.ret + ', ' + t.hotel.rooms + ' room(s) for ' + n + ' people (most rooms hold 4, so 5 people need 2 rooms or a suite). Compare cash with IHG, Hyatt and Hilton points (balances above; Daniel is IHG Platinum Elite); Bilt transfers 1:1 to Hyatt, IHG and Hilton, Amex 1:2 to Hilton. Give cents per point, mention elite perks only when you are sure, and say booking direct keeps elite credit. Estimates only.\n\n' : '') +
       'Reply with JSON only, exactly this shape:\n' +
-      '{"summary": "one sentence", "options": [{"id": "a", "kind": "cash" | "miles" | "transfer" | "mix", "program": "AA", "title": "short name", "perPerson": "e.g. $380–$520 round trip", "total": "e.g. about $2,200 for 5", "points": 0, "fees": "e.g. about $56 total", "cpp": 1.5, "notes": "one or two sentences", "lp": "Loyalty Points effect, or empty"}], "recommend": {"id": "a", "why": "two sentences"}, "card": {"name": "card name", "why": "one sentence"}, "watch": ["short caution", "..."]' + (t.hotel && t.hotel.need && t.ret ? ', "hotels": {"summary": "one sentence", "options": [{"id": "h1", "kind": "cash" | "points" | "transfer", "program": "IHG", "title": "hotel or type of hotel", "perNight": "e.g. $120–$160 per room", "total": "e.g. about $1,400 for 2 rooms, 5 nights", "points": 0, "fees": "", "cpp": 0.6, "notes": "one or two sentences", "lp": "elite perk or empty"}], "recommend": {"id": "h1", "why": "two sentences"}, "watch": ["short caution"]}' : '') + '}';
+      '{"summary": "one sentence", "options": [{"id": "a", "kind": "cash" | "miles" | "transfer" | "mix", "program": "AA", "title": "short name", "perPerson": "e.g. $380–$520 round trip", "total": "e.g. about $2,200 for 5", "points": 0, "fees": "e.g. about $56 total", "cpp": 1.5, "notes": "one sentence, under 15 words", "lp": "Loyalty Points effect in under 6 words, e.g. +4,200 LP or No LP"}], "recommend": {"id": "a", "why": "one sentence, under 20 words"}, "card": {"name": "card name", "why": "under 12 words"}, "watch": ["caution under 10 words", "..."]' + (t.hotel && t.hotel.need && t.ret ? ', "hotels": {"summary": "one sentence", "options": [{"id": "h1", "kind": "cash" | "points" | "transfer", "program": "IHG", "title": "hotel or type of hotel", "perNight": "e.g. $120–$160 per room", "total": "e.g. about $1,400 for 2 rooms, 5 nights", "points": 0, "fees": "", "cpp": 0.6, "notes": "one sentence, under 15 words", "lp": "elite perk in under 6 words, or empty"}], "recommend": {"id": "h1", "why": "one sentence, under 20 words"}, "watch": ["caution under 10 words"]}' : '') + '}';
   }
 
   var tripCtrl = null, tripTab = {};
@@ -1703,34 +1766,156 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     });
   }
 
-  function optionsInto(body, res, label) {
-    if (res.summary) body.appendChild(el('p', 'note', res.summary)).style.margin = '0';
-    var rec = res.recommend && res.recommend.id;
-    (res.options || []).forEach(function (o) {
-      var c = el('div', 'opt' + (o.id === rec ? ' best' : ''));
-      var top = el('div', 'otop'); top.appendChild(el('span', 'code', String(o.program || '').slice(0, 5))); top.appendChild(el('b', null, o.title || '')); if (o.id === rec) top.appendChild(el('span', 'best-tag', 'Best')); c.appendChild(top);
-      var nums = el('div', 'nums');
-      if (o.points) { var pv = el('span'); pv.appendChild(el('b', null, num(o.points))); pv.appendChild(document.createTextNode(' pts')); nums.appendChild(pv); }
-      if (o.total) nums.appendChild(el('span', null, o.total));
-      if (o.fees && o.points) nums.appendChild(el('span', null, '+ ' + o.fees));
-      if (o.cpp) nums.appendChild(el('span', null, Number(o.cpp).toFixed(1) + '¢ per point'));
-      c.appendChild(nums);
-      if (o.perPerson) c.appendChild(el('p', null, 'Per person: ' + o.perPerson));
-      if (o.perNight) c.appendChild(el('p', null, 'Per night: ' + o.perNight));
-      if (o.notes) c.appendChild(el('p', null, o.notes));
-      if (o.lp) c.appendChild(el('span', 'lp', o.lp));
-      if (o.url && /^https:\/\//.test(o.url)) { var a = el('a', null, 'Open this fare ›'); a.href = o.url; a.target = '_blank'; a.rel = 'noopener'; a.style.cssText = 'font-size:13px;font-weight:600;color:var(--teal)'; c.appendChild(a); }
-      body.appendChild(c);
-    });
-    if (res.recommend || res.card) {
-      var r = el('div', 'rec');
-      if (res.recommend && res.recommend.why) { var p1 = el('span'); p1.appendChild(el('b', null, 'Recommendation. ')); p1.appendChild(document.createTextNode(res.recommend.why)); r.appendChild(p1); }
-      if (res.card && res.card.name) { var p2 = el('span'); p2.appendChild(el('b', null, 'Pay with ' + res.card.name + '. ')); p2.appendChild(document.createTextNode(res.card.why || '')); r.appendChild(p2); }
-      body.appendChild(r);
+  var TICON = {
+    cash: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.6"/><path d="M6 9.5v5M18 9.5v5"/></svg>',
+    miles: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 20l1.5-6-5.5-2-3 1.5L2 12.5l4-2.5 13.5-6c1.5-.6 2.8.9 2 2.2L15 13l-1.5 7z"/></svg>',
+    points: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.2l2.7 5.5 6 .9-4.35 4.2 1 6L12 17l-5.35 2.8 1-6L3.3 9.6l6-.9z"/></svg>',
+    transfer: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h15l-3.5-3.5M20 16H5l3.5 3.5"/></svg>',
+    mix: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5l9 4.8-9 4.8-9-4.8z"/><path d="M3 12.7l9 4.8 9-4.8"/><path d="M3 16.9l9 4.8 9-4.8" opacity=".55"/></svg>',
+    bed: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19V6M3 14h18v5M21 14v-1.5a3 3 0 0 0-3-3h-7.5V14"/><circle cx="6.8" cy="11" r="1.6"/></svg>',
+    spark: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5c.6 4.6 2.9 6.9 7.5 7.5-4.6.6-6.9 2.9-7.5 7.5-.6-4.6-2.9-6.9-7.5-7.5 4.6-.6 6.9-2.9 7.5-7.5z"/></svg>',
+    alert: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0"><path d="M12 4l9.5 16.5h-19z"/><path d="M12 10v4.5M12 17.6v.1"/></svg>',
+    people: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 12 0M16 4.6a3.2 3.2 0 0 1 0 6.4M21 20a6 6 0 0 0-3.5-5.5"/></svg>',
+    moon: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>',
+    up: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>',
+    tag: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.3"/></svg>',
+    chev: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>'
+  };
+  function tKind(o, hotel) {
+    var k = String(o.kind || '').toLowerCase();
+    if (k === 'cash') return hotel ? 'bed' : 'cash';
+    if (k === 'transfer') return 'transfer';
+    if (k === 'mix') return 'mix';
+    if (k === 'miles') return 'miles';
+    return 'points';
+  }
+  var KIND_LABEL = { cash: 'Cash', bed: 'Cash', miles: 'Miles', points: 'Points', transfer: 'Transfer', mix: 'Mix' };
+  function moneyBits(s) {
+    s = String(s || '').replace(/^\s*(about|around|roughly|approx\.?|~)\s*/i, '');
+    var m = s.match(/\$\s?[\d,.]+(?:\s?[kK])?(?:\s?[–-]\s?\$?\s?[\d,.]+(?:\s?[kK])?)?/);
+    if (!m) return { big: s, rest: '' };
+    var rest = (s.slice(0, m.index) + s.slice(m.index + m[0].length)).replace(/^[\s,·]+|[\s,·]+$/g, '');
+    return { big: m[0].replace(/\s/g, ''), rest: rest };
+  }
+  function firstSentence(s) {
+    s = String(s || '').trim(); var m = s.match(/^.*?[.!?](\s|$)/);
+    return m ? m[0].trim() : s;
+  }
+  function lpChip(lp) {
+    var s = String(lp || '').trim(); if (!s) return null;
+    if (/^(none|no\b|n\/a)|\bno (LP|loyalty|status)|(doesn'?t|does not|won'?t|will not|do not|don'?t) earn|not earn/i.test(s)) return { cls: 'mute', text: 'No LP', icon: 'up' };
+    var n = s.match(/([\d,]{3,})\s*(LP|Loyalty)/i);
+    if (n) return { cls: 'good', text: '+' + n[1] + ' LP', icon: 'up' };
+    if (s.length <= 14) return { cls: 'good', text: s, icon: 'up' };
+    return { cls: 'good', text: /LP|Loyalty/i.test(s) ? 'Earns LP' : 'Elite perk', icon: 'up' };
+  }
+  function cppClass(c) { c = Number(c); return c >= 1.4 ? 'good' : c >= 1 ? 'ok' : 'low'; }
+  function tchip(cls, iconKey, text) {
+    var c = el('span', 'tchip' + (cls ? ' ' + cls : ''));
+    if (iconKey) html(c, TICON[iconKey]);
+    c.appendChild(el('span', null, text)); return c;
+  }
+  function optValue(o) {
+    if (o.points) {
+      var v = el('div', 'tval'); v.appendChild(el('b', null, num(o.points))); v.appendChild(el('small', null, ' pts'));
+      var sub = o.fees ? '+ ' + moneyBits(o.fees).big + ' fees' : '';
+      return { node: v, sub: sub };
     }
-    (res.watch || []).forEach(function (w) { var wb = el('div', 'warnbox'); wb.appendChild(el('span', null, w)); body.appendChild(wb); });
-    if (Array.isArray(res.sources) && res.sources.length) body.appendChild(el('span', 'srcline', 'Sources: ' + res.sources.join(' · ')));
-    body.appendChild(el('span', 'srcline', label));
+    var mb = moneyBits(o.total || o.perPerson || o.perNight);
+    var v2 = el('div', 'tval'); v2.appendChild(el('b', null, mb.big || '—'));
+    return { node: v2, sub: mb.rest };
+  }
+  function optChips(o, wrap, hotel) {
+    if (o.cpp) wrap.appendChild(tchip(cppClass(o.cpp), 'tag', Number(o.cpp).toFixed(1) + '¢/pt'));
+    var lc = lpChip(o.lp); if (lc) wrap.appendChild(tchip(lc.cls, lc.icon, lc.text));
+    if (o.perPerson) wrap.appendChild(tchip('', 'people', moneyBits(o.perPerson).big + ' pp'));
+    if (o.perNight) wrap.appendChild(tchip('', 'moon', moneyBits(o.perNight).big + '/night'));
+  }
+  function optMore(o) {
+    var m = el('div', 'tmore');
+    if (o.notes) m.appendChild(el('p', null, o.notes));
+    var facts = [];
+    if (o.total && o.points) facts.push(['Total', o.total]);
+    if (o.perPerson) facts.push(['Per person', o.perPerson]);
+    if (o.perNight) facts.push(['Per night', o.perNight]);
+    if (o.fees) facts.push(['Taxes and fees', o.fees]);
+    if (o.lp) facts.push(['Status', o.lp]);
+    if (facts.length) { var dl = el('dl'); facts.forEach(function (f) { dl.appendChild(el('dt', null, f[0])); dl.appendChild(el('dd', null, f[1])); }); m.appendChild(dl); }
+    if (o.url && /^https:\/\//.test(o.url)) { var a = el('a', 'tlink', 'Open this fare ›'); a.href = o.url; a.target = '_blank'; a.rel = 'noopener'; a.addEventListener('click', function (e) { e.stopPropagation(); }); m.appendChild(a); }
+    return m;
+  }
+  function expandable(card, more) {
+    card.setAttribute('role', 'button'); card.tabIndex = 0; card.setAttribute('aria-expanded', 'false');
+    var hint = el('span', 'thint'); html(hint, TICON.chev); hint.appendChild(el('span', null, 'Details'));
+    card.appendChild(hint); card.appendChild(more); more.hidden = true;
+    var flip = function () { var open = card.getAttribute('aria-expanded') !== 'true'; card.setAttribute('aria-expanded', String(open)); more.hidden = !open; hint.lastChild.textContent = open ? 'Less' : 'Details'; };
+    card.addEventListener('click', flip);
+    card.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } });
+  }
+
+  function optionsInto(body, res, label, hotel) {
+    var opts = (res.options || []).slice(0, 4);
+    var recId = res.recommend && res.recommend.id;
+    var best = opts.filter(function (o) { return o.id === recId; })[0] || null;
+    var rest = opts.filter(function (o) { return o !== best; });
+    var wrap = el('div', 'tres');
+
+    if (best) {
+      var k = tKind(best, hotel);
+      var hero = el('div', 'thero');
+      var eb = el('div', 'thero-eb'); html(eb, TICON.spark); eb.appendChild(el('span', null, 'Colibrí recommends')); hero.appendChild(eb);
+      var row = el('div', 'thero-row');
+      var ic = el('div', 'tico k-' + k); html(ic, TICON[k]); row.appendChild(ic);
+      var mid = el('div', 'thero-mid');
+      var nm = el('div', 'tname'); if (best.program) nm.appendChild(el('span', 'tprog', String(best.program).slice(0, 6))); nm.appendChild(el('span', null, best.title || KIND_LABEL[k])); mid.appendChild(nm);
+      var v = optValue(best); mid.appendChild(v.node); if (v.sub) mid.appendChild(el('span', 'tsub', v.sub));
+      row.appendChild(mid); hero.appendChild(row);
+      var chips = el('div', 'tchips'); optChips(best, chips, hotel); if (chips.childNodes.length) hero.appendChild(chips);
+      var why = res.recommend && res.recommend.why;
+      if (why) hero.appendChild(el('p', 'twhy', firstSentence(why)));
+      var more = optMore(best);
+      if (why && firstSentence(why) !== String(why).trim()) more.insertBefore(el('p', null, why), more.firstChild);
+      if (res.summary) more.appendChild(el('p', null, res.summary));
+      expandable(hero, more);
+      wrap.appendChild(hero);
+    } else if (res.summary) wrap.appendChild(el('p', 'note', res.summary)).style.margin = '0';
+
+    if (res.card && res.card.name) {
+      var pay = el('div', 'tpay');
+      pay.appendChild(el('div', 'tminicard'));
+      var pm = el('div', 'tpay-main'); pm.appendChild(el('span', 'tlabel', 'Pay with')); pm.appendChild(el('b', null, res.card.name));
+      if (res.card.why) pm.appendChild(el('span', 'tpay-why', res.card.why));
+      pay.appendChild(pm); wrap.appendChild(pay);
+    }
+
+    if (rest.length) {
+      wrap.appendChild(el('span', 'tlabel tgap', best ? 'Other options' : 'Options'));
+      var grid = el('div', 'tgrid' + (rest.length === 1 ? ' one' : ''));
+      rest.forEach(function (o) {
+        var k = tKind(o, hotel);
+        var c = el('div', 'topt');
+        var top = el('div', 'topt-top');
+        var ic = el('div', 'tico sm k-' + k); html(ic, TICON[k]); top.appendChild(ic);
+        if (o.program) top.appendChild(el('span', 'tprog', String(o.program).slice(0, 6)));
+        c.appendChild(top);
+        c.appendChild(el('div', 'topt-title', o.title || KIND_LABEL[k]));
+        var v = optValue(o); c.appendChild(v.node); if (v.sub) c.appendChild(el('span', 'tsub', v.sub));
+        var chips = el('div', 'tchips'); optChips(o, chips, hotel); if (chips.childNodes.length) c.appendChild(chips);
+        expandable(c, optMore(o));
+        grid.appendChild(c);
+      });
+      wrap.appendChild(grid);
+    }
+
+    var watch = (res.watch || []).filter(Boolean);
+    if (watch.length) {
+      var wl = el('div', 'twatch');
+      watch.forEach(function (w) { var it = el('div', 'twatch-item'); html(it, TICON.alert); it.appendChild(el('span', null, w)); wl.appendChild(it); });
+      wrap.appendChild(wl);
+    }
+    if (Array.isArray(res.sources) && res.sources.length) wrap.appendChild(el('span', 'srcline', 'Sources: ' + res.sources.join(' · ')));
+    if (label) wrap.appendChild(el('span', 'srcline', label));
+    body.appendChild(wrap);
   }
 
   function openTrip(id, autoEstimate, replace) {
@@ -1757,7 +1942,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
       }
       if (tab === 'hotels' && t.ret) {
         var hs = res && res.hotels;
-        if (hs && hs.options && hs.options.length) optionsInto(body, hs, label);
+        if (hs && hs.options && hs.options.length) optionsInto(body, hs, label, true);
         else if (!(t.hotel && t.hotel.need)) {
           body.appendChild(el('div', 'empty', 'No hotel search on this trip yet.'));
           var ah = el('button', 'btn primary', 'Search hotels too'); ah.type = 'button';
