@@ -207,16 +207,19 @@ body:not(.v-home):not(.v-cal) .fab, body.kidmode .fab { display: none; }
 .wtile .bal small { font-size: 12px; font-weight: 600; color: var(--muted); margin-left: 3px; }
 .wtile .st { font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
 .wtile.missing .bal { font-size: 14px; color: var(--muted); font-weight: 600; }
-/* wallet program marks: original icons by program type, one app color each */
-.wtile { --tone: var(--p-all); }
-.wtile .wtop { display: flex; align-items: center; gap: 10px; min-width: 0; margin-bottom: 2px; }
-.wico { width: 38px; height: 38px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--tone) 17%, var(--surface)); color: var(--tone); }
-.wico svg { width: 20px; height: 20px; }
-.wtile .wid { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.wtile .wid .pc { align-self: flex-start; }
-.wtile .wname { font-size: 12px; font-weight: 700; line-height: 1.2; color: var(--ink); overflow-wrap: anywhere; }
-.wtile .wkind { font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--tone); }
-.sh-head .wico { width: 44px; height: 44px; border-radius: 14px; }
+/* wallet program marks: original app-icon style tiles (monogram + type badge), not company logos */
+.wtile { --tone: #4A5468; }
+.wtile .wtop { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; min-width: 0; margin-bottom: 2px; }
+.wico { position: relative; width: 48px; height: 48px; border-radius: 15px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--tone); color: #FFFFFF; box-shadow: inset 0 -10px 18px rgba(0,0,0,.14), 0 2px 6px rgba(0,0,0,.18); }
+.wico .wmono { font-family: var(--body); font-weight: 800; font-size: 17px; letter-spacing: .01em; line-height: 1; }
+.wico .wmono.w3 { font-size: 13.5px; letter-spacing: 0; }
+.wico .wbadge { position: absolute; right: -5px; bottom: -5px; width: 22px; height: 22px; border-radius: 11px; display: flex; align-items: center; justify-content: center; background: var(--surface); color: var(--tone); box-shadow: 0 0 0 2px var(--surface); }
+.wico .wbadge svg { width: 14px; height: 14px; }
+.wtile .wid { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.wtile .wid .pc { display: none; }
+.wtile .wname { font-size: 13px; font-weight: 700; line-height: 1.25; color: var(--ink); overflow-wrap: break-word; }
+.wtile .wkind { font-size: 11px; font-weight: 600; color: var(--muted); }
+.sh-head .wico { width: 52px; height: 52px; border-radius: 16px; }
 .mrow { padding: 12px 14px; border-top: 1px solid var(--line-soft); display: flex; flex-direction: column; gap: 6px; }
 .mrow:first-child { border-top: 0; }
 .mrow .row1 { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; }
@@ -1578,7 +1581,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
       var t = el('button', 'wtile' + (g.balance == null ? ' missing' : '')); t.type = 'button';
       var lk = progLook(g); t.style.setProperty('--tone', lk.tone);
       var top = el('span', 'wtop'); top.appendChild(progMark(g));
-      var wid = el('span', 'wid'); wid.appendChild(el('span', 'pc', g.code)); wid.appendChild(el('span', 'wname', g.name || KIND_NAME[lk.kind])); top.appendChild(wid);
+      var wid = el('span', 'wid'); wid.appendChild(el('span', 'pc', g.code)); wid.appendChild(el('span', 'wname', g.name || KIND_NAME[lk.kind])); wid.appendChild(el('span', 'wkind', KIND_NAME[lk.kind])); top.appendChild(wid);
       t.appendChild(top);
       var bal = el('span', 'bal'); if (g.balance == null) bal.textContent = 'Not in email'; else { bal.textContent = num(g.balance); bal.appendChild(el('small', null, g.unit)); } t.appendChild(bal);
       t.appendChild(el('span', 'st', g.status + (g.as_of ? ' · ' + g.as_of : '')));
@@ -1604,12 +1607,18 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     bank: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5.5" width="19" height="13" rx="2.5"/><path d="M2.5 10h19M6.5 14.5h4"/></svg>',
     car: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 16V11l2-4.5h10l2 4.5v5M3.5 16h17v2.5h-17z"/><circle cx="7.5" cy="13.5" r=".8"/><circle cx="16.5" cy="13.5" r=".8"/></svg>'
   };
-  /* Original Colibrí marks: an icon for the kind of program and an app color per program (not the companies' logos or colors). */
+  var WBADGE = {
+    air: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>',
+    hotel: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 13c1.66 0 3-1.34 3-3S8.66 7 7 7s-3 1.34-3 3 1.34 3 3 3zm12-6h-8v7H3V5H1v15h2v-3h18v3h2v-9c0-2.21-1.79-4-4-4z"/></svg>',
+    bank: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>',
+    car: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>'
+  };
+  /* Original Colibrí marks: a monogram, a type badge and a color per program, chosen for the app (not the companies' logos or brand colors). */
   var PROG_LOOK = {
-    UA: ['air', '--p-nicolas'], AA: ['air', '--p-dany'], AS: ['air', '--p-montse'], FB: ['air', '--p-andrea'], DL: ['air', '--p-all'],
-    AMEX: ['bank', '--amber'], BILT: ['bank', '--teal'],
-    IHG: ['hotel', '--p-all'], WOH: ['hotel', '--p-nicolas'], HH: ['hotel', '--p-andrea'], MAR: ['hotel', '--p-dany'],
-    NAT: ['car', '--p-montse']
+    UA: ['air', '#D2561F', 'UA'], AA: ['air', '#7A3FA3', 'AA'], AS: ['air', '#2D7F52', 'AS'], FB: ['air', '#B8306F', 'FB'], DL: ['air', '#4A5468', 'DL'],
+    AMEX: ['bank', '#A8740F', 'MR'], BILT: ['bank', '#0E716C', 'BR'],
+    IHG: ['hotel', '#B0353A', 'IHG'], WOH: ['hotel', '#5F7318', 'WOH'], HH: ['hotel', '#8A5326', 'HH'], MAR: ['hotel', '#5B4A8C', 'MB'],
+    NAT: ['car', '#3E6B5A', 'NE']
   };
   var KIND_NAME = { air: 'Airline miles', hotel: 'Hotel points', bank: 'Card points', car: 'Car rental' };
   function progLook(g) {
@@ -1617,12 +1626,15 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     var l = PROG_LOOK[code];
     if (!l) {
       var kind = /hotel|hyatt|hilton|ihg|marriott|bonvoy/.test(name) ? 'hotel' : /rewards|points|membership/.test(name) && !/air|mile/.test(name) ? 'bank' : /emerald|rental|car/.test(name) ? 'car' : 'air';
-      l = [kind, '--p-all'];
+      l = [kind, '#4A5468', String(g.code || '?').slice(0, 3)];
     }
-    return { kind: l[0], tone: 'var(' + l[1] + ')' };
+    return { kind: l[0], tone: l[1].charAt(0) === '-' ? 'var(' + l[1] + ')' : l[1], mono: l[2] || String(g.code || '').slice(0, 3) };
   }
   function progMark(g) {
-    var lk = progLook(g), ic = el('span', 'wico'); ic.style.setProperty('--tone', lk.tone); html(ic, WICON[lk.kind]); return ic;
+    var lk = progLook(g), ic = el('span', 'wico'); ic.style.setProperty('--tone', lk.tone);
+    ic.appendChild(el('b', 'wmono' + (lk.mono.length > 2 ? ' w3' : ''), lk.mono));
+    var bd = el('i', 'wbadge'); bd.title = KIND_NAME[lk.kind]; html(bd, WBADGE[lk.kind]); ic.appendChild(bd);
+    return ic;
   }
   function openProgram(g) {
     openSheet(function (body) {
