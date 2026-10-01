@@ -207,6 +207,16 @@ body:not(.v-home):not(.v-cal) .fab, body.kidmode .fab { display: none; }
 .wtile .bal small { font-size: 12px; font-weight: 600; color: var(--muted); margin-left: 3px; }
 .wtile .st { font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
 .wtile.missing .bal { font-size: 14px; color: var(--muted); font-weight: 600; }
+/* wallet program marks: original icons by program type, one app color each */
+.wtile { --tone: var(--p-all); }
+.wtile .wtop { display: flex; align-items: center; gap: 10px; min-width: 0; margin-bottom: 2px; }
+.wico { width: 38px; height: 38px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--tone) 17%, var(--surface)); color: var(--tone); }
+.wico svg { width: 20px; height: 20px; }
+.wtile .wid { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.wtile .wid .pc { align-self: flex-start; }
+.wtile .wname { font-size: 12px; font-weight: 700; line-height: 1.2; color: var(--ink); overflow-wrap: anywhere; }
+.wtile .wkind { font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--tone); }
+.sh-head .wico { width: 44px; height: 44px; border-radius: 14px; }
 .mrow { padding: 12px 14px; border-top: 1px solid var(--line-soft); display: flex; flex-direction: column; gap: 6px; }
 .mrow:first-child { border-top: 0; }
 .mrow .row1 { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; }
@@ -1566,7 +1576,10 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     if (!p || !p.programs || !p.programs.length) { w.appendChild(el('div', 'empty', S.dbState === 'none' ? 'Open this app in Claude to see your points.' : 'Balances arrive with the monthly points review.')); }
     else (p.programs || []).forEach(function (g) {
       var t = el('button', 'wtile' + (g.balance == null ? ' missing' : '')); t.type = 'button';
-      t.appendChild(el('span', 'pc', g.code));
+      var lk = progLook(g); t.style.setProperty('--tone', lk.tone);
+      var top = el('span', 'wtop'); top.appendChild(progMark(g));
+      var wid = el('span', 'wid'); wid.appendChild(el('span', 'pc', g.code)); wid.appendChild(el('span', 'wname', g.name || KIND_NAME[lk.kind])); top.appendChild(wid);
+      t.appendChild(top);
       var bal = el('span', 'bal'); if (g.balance == null) bal.textContent = 'Not in email'; else { bal.textContent = num(g.balance); bal.appendChild(el('small', null, g.unit)); } t.appendChild(bal);
       t.appendChild(el('span', 'st', g.status + (g.as_of ? ' · ' + g.as_of : '')));
       t.addEventListener('click', function () { openProgram(g); });
@@ -1585,9 +1598,35 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     });
   }
 
+  var WICON = {
+    air: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 20l1.5-6-5.5-2-3 1.5L2 12.5l4-2.5 13.5-6c1.5-.6 2.8.9 2 2.2L15 13l-1.5 7z"/></svg>',
+    hotel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19V6M3 14h18v5M21 14v-1.5a3 3 0 0 0-3-3h-7.5V14"/><circle cx="6.8" cy="11" r="1.6"/></svg>',
+    bank: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5.5" width="19" height="13" rx="2.5"/><path d="M2.5 10h19M6.5 14.5h4"/></svg>',
+    car: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 16V11l2-4.5h10l2 4.5v5M3.5 16h17v2.5h-17z"/><circle cx="7.5" cy="13.5" r=".8"/><circle cx="16.5" cy="13.5" r=".8"/></svg>'
+  };
+  /* Original Colibrí marks: an icon for the kind of program and an app color per program (not the companies' logos or colors). */
+  var PROG_LOOK = {
+    UA: ['air', '--p-nicolas'], AA: ['air', '--p-dany'], AS: ['air', '--p-montse'], FB: ['air', '--p-andrea'], DL: ['air', '--p-all'],
+    AMEX: ['bank', '--amber'], BILT: ['bank', '--teal'],
+    IHG: ['hotel', '--p-all'], WOH: ['hotel', '--p-nicolas'], HH: ['hotel', '--p-andrea'], MAR: ['hotel', '--p-dany'],
+    NAT: ['car', '--p-montse']
+  };
+  var KIND_NAME = { air: 'Airline miles', hotel: 'Hotel points', bank: 'Card points', car: 'Car rental' };
+  function progLook(g) {
+    var code = String(g.code || '').toUpperCase(), name = String(g.name || '').toLowerCase();
+    var l = PROG_LOOK[code];
+    if (!l) {
+      var kind = /hotel|hyatt|hilton|ihg|marriott|bonvoy/.test(name) ? 'hotel' : /rewards|points|membership/.test(name) && !/air|mile/.test(name) ? 'bank' : /emerald|rental|car/.test(name) ? 'car' : 'air';
+      l = [kind, '--p-all'];
+    }
+    return { kind: l[0], tone: 'var(' + l[1] + ')' };
+  }
+  function progMark(g) {
+    var lk = progLook(g), ic = el('span', 'wico'); ic.style.setProperty('--tone', lk.tone); html(ic, WICON[lk.kind]); return ic;
+  }
   function openProgram(g) {
     openSheet(function (body) {
-      var h = el('div', 'sh-head'); var m = el('div', 'main'); m.appendChild(el('h2', null, g.name));
+      var h = el('div', 'sh-head'); h.appendChild(progMark(g)); var m = el('div', 'main'); m.appendChild(el('h2', null, g.name));
       m.appendChild(el('span', null, (g.balance == null ? 'Balance not in email' : num(g.balance) + ' ' + g.unit) + ' · ' + g.status)); if (g.as_of) m.appendChild(el('span', null, 'As of ' + g.as_of)); h.appendChild(m);
       var x = el('button', 'x'); x.type = 'button'; x.setAttribute('aria-label', 'Close'); html(x, ICON.x); x.addEventListener('click', closeSheet); h.appendChild(x); body.appendChild(h);
       if (PROG_INFO[g.code]) body.appendChild(el('p', 'note', PROG_INFO[g.code]));
