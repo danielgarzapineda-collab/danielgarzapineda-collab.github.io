@@ -310,6 +310,47 @@ body:not(.v-home):not(.v-cal) .fab, body.kidmode .fab { display: none; }
 .twatch-item { display: flex; gap: 8px; align-items: flex-start; padding: 9px 12px; border-radius: 12px; background: var(--amber-soft); color: var(--amber-ink); font-size: 13px; font-weight: 600; line-height: 1.35; }
 .twatch-item svg { margin-top: 1px; }
 @media (max-width: 340px) { .tgrid { grid-template-columns: minmax(0, 1fr); } }
+/* flight strip */
+.fls { display: flex; flex-direction: column; gap: 8px; }
+.fl { border-radius: 14px; background: var(--sunk); padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 8px; }
+.fl-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.fl-dir { display: flex; gap: 6px; align-items: baseline; font-size: 12px; min-width: 0; }
+.fl-dir b { font-weight: 800; letter-spacing: .05em; text-transform: uppercase; font-size: 11px; color: var(--teal-strong); }
+.fl-dir span { color: var(--muted); font-weight: 600; }
+.fl-badges { display: flex; gap: 6px; }
+.fl-badge { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 8px 0 3px; border-radius: 999px; font-size: 11px; font-weight: 700; background: var(--surface); color: var(--ink); font-variant-numeric: tabular-nums; }
+.fl-badge b { width: 18px; height: 18px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: var(--on-teal); background: var(--teal); }
+.fl-badge.one b { background: var(--amber); color: #2A1A00; }
+.fl-badge.many b { background: var(--red); color: var(--surface); }
+.fl-badge.time { padding-left: 8px; color: var(--teal-strong); }
+.fl-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: end; gap: 8px; }
+.fl-end { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; min-width: 52px; }
+.fl-end.r { align-items: flex-end; }
+.fl-ico { width: 30px; height: 30px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 3px; }
+.fl-ico.up { background: var(--teal); color: var(--on-teal); }
+.fl-ico.down { background: var(--surface); color: var(--teal-strong); border: 1.5px solid var(--teal); }
+.fl-time { font-family: var(--display); font-weight: 600; font-size: 17px; line-height: 1.1; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.fl-time sup { font-family: var(--body); font-size: 10px; font-weight: 800; color: var(--amber-ink); margin-left: 2px; }
+.fl-code { font-size: 12px; font-weight: 800; letter-spacing: .06em; color: var(--muted); }
+.fl-mid { align-self: stretch; display: flex; align-items: center; }
+.fl-track { position: relative; width: 100%; height: 2px; border-radius: 1px; margin: 20px 0 30px; background: repeating-linear-gradient(90deg, var(--teal) 0 6px, transparent 6px 10px); }
+.fl-track::before, .fl-track::after { content: ''; position: absolute; top: -3px; width: 8px; height: 8px; border-radius: 4px; background: var(--teal); }
+.fl-track::before { left: -2px; } .fl-track::after { right: -2px; }
+.fl-dot { position: absolute; top: -5px; width: 12px; height: 12px; margin-left: -6px; border-radius: 6px; background: var(--surface); border: 2.5px solid var(--amber); }
+.fl-dot.sep { border-style: dashed; border-color: var(--red); }
+.fl-lab { position: absolute; bottom: 9px; transform: translateX(-50%); white-space: nowrap; font-size: 11px; font-weight: 800; letter-spacing: .04em; line-height: 1.1; }
+.fl-lab.center { left: 50%; font-weight: 700; color: var(--teal-strong); }
+.fl-under { position: absolute; top: 9px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; white-space: nowrap; font-size: 11px; font-weight: 700; line-height: 1.15; color: var(--amber-ink); font-variant-numeric: tabular-nums; }
+.fl-under em { font-style: normal; font-size: 10px; color: var(--red-ink); }
+.fl-nums { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: .02em; }
+.thero .fls, .topt .fls { margin-top: 2px; }
+.fl-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.fl-foot .fl-nums { min-width: 0; overflow-wrap: anywhere; }
+.fl-foot .fl-badge.time { flex-shrink: 0; background: var(--teal-soft); }
+.fl.multi .fl-under { font-size: 10px; }
+.fl-lab.center { font-weight: 700; letter-spacing: 0; color: var(--teal-strong); }
+.fl.multi .fl-time { font-size: 15px; }
+.fl.multi .fl-end { min-width: 46px; }
 .thinking { display: flex; gap: 10px; align-items: center; padding: 12px 14px; border-radius: 14px; background: var(--sunk); font-size: 14px; color: var(--muted); }
 .thinking i { width: 18px; height: 18px; border-radius: 50%; border: 3px solid var(--line); border-top-color: var(--teal); animation: spin 1s linear infinite; flex-shrink: 0; }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -1739,10 +1780,10 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
       '- For each points option give cents per point: (cash price - award taxes and fees) / points x 100, using the midpoint of your ranges.\n' +
       '- Factor AA Loyalty Points: a paid AA fare earns them, an award does not. Say when paying cash would get Daniel to his AA status goal.\n' +
       '- Transfers cannot be undone: any transfer option must say to confirm award space first.\n' +
-      '- Name the card to pay cash or award fees with, and why. Be brief and concrete: the app shows this as cards, so keep every text field short. 2 to 4 options.\n\n' +
+      '- legs: one per direction with the usual routing for that option (connecting airports as stops, typical layover as wait) and the typical total travel time. You cannot see schedules, so dep and arr stay null and flights stays []. For a nonstop put the flight time in air. A separate positioning ticket is a stop with note "separate ticket".\n- Name the card to pay cash or award fees with, and why. Be brief and concrete: the app shows this as cards, so keep every text field short. 2 to 4 options.\n\n' +
       (t.hotel && t.hotel.need && t.ret ? 'HOTEL\nAlso compare a hotel in ' + (t.toName || t.to) + (t.hotel.area ? ' (' + t.hotel.area + ')' : '') + ', ' + t.depart + ' to ' + t.ret + ', ' + t.hotel.rooms + ' room(s) for ' + n + ' people (most rooms hold 4, so 5 people need 2 rooms or a suite). Compare cash with IHG, Hyatt and Hilton points (balances above; Daniel is IHG Platinum Elite); Bilt transfers 1:1 to Hyatt, IHG and Hilton, Amex 1:2 to Hilton. Give cents per point, mention elite perks only when you are sure, and say booking direct keeps elite credit. Estimates only.\n\n' : '') +
       'Reply with JSON only, exactly this shape:\n' +
-      '{"summary": "one sentence", "options": [{"id": "a", "kind": "cash" | "miles" | "transfer" | "mix", "program": "AA", "title": "short name", "perPerson": "e.g. $380–$520 round trip", "total": "e.g. about $2,200 for 5", "points": 0, "fees": "e.g. about $56 total", "cpp": 1.5, "notes": "one sentence, under 15 words", "lp": "Loyalty Points effect in under 6 words, e.g. +4,200 LP or No LP"}], "recommend": {"id": "a", "why": "one sentence, under 20 words"}, "card": {"name": "card name", "why": "under 12 words"}, "watch": ["caution under 10 words", "..."]' + (t.hotel && t.hotel.need && t.ret ? ', "hotels": {"summary": "one sentence", "options": [{"id": "h1", "kind": "cash" | "points" | "transfer", "program": "IHG", "title": "hotel or type of hotel", "perNight": "e.g. $120–$160 per room", "total": "e.g. about $1,400 for 2 rooms, 5 nights", "points": 0, "fees": "", "cpp": 0.6, "notes": "one sentence, under 15 words", "lp": "elite perk in under 6 words, or empty"}], "recommend": {"id": "h1", "why": "one sentence, under 20 words"}, "watch": ["caution under 10 words"]}' : '') + '}';
+      '{"summary": "one sentence", "options": [{"id": "a", "kind": "cash" | "miles" | "transfer" | "mix", "program": "AA", "title": "short name", "perPerson": "e.g. $380–$520 round trip", "total": "e.g. about $2,200 for 5", "points": 0, "fees": "e.g. about $56 total", "cpp": 1.5, "notes": "one sentence, under 15 words", "lp": "Loyalty Points effect in under 6 words, e.g. +4,200 LP or No LP", "legs": [{"dir": "out" | "back", "date": "YYYY-MM-DD", "from": "SYR", "to": "AMS", "dep": null, "arr": null, "arrDays": 0, "total": "about 11h", "air": "", "stops": [{"at": "PHL", "wait": "about 2h", "note": ""}], "flights": []}]}], "recommend": {"id": "a", "why": "one sentence, under 20 words"}, "card": {"name": "card name", "why": "under 12 words"}, "watch": ["caution under 10 words", "..."]' + (t.hotel && t.hotel.need && t.ret ? ', "hotels": {"summary": "one sentence", "options": [{"id": "h1", "kind": "cash" | "points" | "transfer", "program": "IHG", "title": "hotel or type of hotel", "perNight": "e.g. $120–$160 per room", "total": "e.g. about $1,400 for 2 rooms, 5 nights", "points": 0, "fees": "", "cpp": 0.6, "notes": "one sentence, under 15 words", "lp": "elite perk in under 6 words, or empty"}], "recommend": {"id": "h1", "why": "one sentence, under 20 words"}, "watch": ["caution under 10 words"]}' : '') + '}';
   }
 
   var tripCtrl = null, tripTab = {};
@@ -1764,6 +1805,82 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
       if (!$('sheet').hidden) openTrip(id, false, true);
       if (!stopped) toast(e && e.code === 'not_granted' ? 'Claude needs your OK to estimate.' : "Couldn't get an estimate. Try again.");
     });
+  }
+
+  /* ---------- Flight strip: takeoff → line with stops → landing ---------- */
+  var FICON = {
+    up: '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.5 19h19v2h-19zM22.07 9.64c-.21-.8-1.04-1.28-1.84-1.06L14.92 10l-6.9-6.43-1.93.51 4.14 7.17-4.97 1.33-1.97-1.54-1.45.39 2.59 4.49L21 11.49c.81-.23 1.28-1.05 1.07-1.85z"/></svg>',
+    down: '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.5 19h19v2h-19zM9.68 13.27l4.35 1.16 5.31 1.42c.8.21 1.62-.26 1.84-1.06.21-.8-.26-1.62-1.06-1.84l-5.31-1.42-2.76-9.02L10.12 2v8.28L5.15 8.95l-.93-2.32-1.45-.39v5.17l1.6.43 5.31 1.43z"/></svg>',
+    clock: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'
+  };
+  function shortDur(s) { return String(s || '').replace(/\s*(hours?|hrs?)\s*/i, 'h ').replace(/\s*(minutes?|mins?)\s*/i, 'm').replace(/\s+/g, ' ').trim(); }
+  function legDate(d) {
+    if (!d || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return d || '';
+    var x = new Date(d + 'T12:00:00');
+    return x.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  }
+  function flightStrip(leg) {
+    var stops = Array.isArray(leg.stops) ? leg.stops : [];
+    var n = stops.length;
+    var box = el('div', 'fl' + (n > 1 ? ' multi' : ''));
+    var head = el('div', 'fl-head');
+    var hl = el('div', 'fl-dir');
+    hl.appendChild(el('b', null, leg.dir === 'back' ? 'Return' : 'Outbound'));
+    if (leg.date) hl.appendChild(el('span', null, legDate(leg.date)));
+    head.appendChild(hl);
+    var badges = el('div', 'fl-badges');
+    var sb = el('span', 'fl-badge ' + (n === 0 ? 'ok' : n === 1 ? 'one' : 'many'));
+    sb.appendChild(el('b', null, n === 0 ? '0' : String(n)));
+    sb.appendChild(el('span', null, n === 0 ? 'nonstop' : n === 1 ? 'stop' : 'stops'));
+    badges.appendChild(sb);
+    head.appendChild(badges);
+    box.appendChild(head);
+
+    var row = el('div', 'fl-row');
+    var dep = el('div', 'fl-end');
+    var di = el('span', 'fl-ico up'); html(di, FICON.up); dep.appendChild(di);
+    dep.appendChild(el('b', 'fl-time', leg.dep || leg.from || '—'));
+    dep.appendChild(el('span', 'fl-code', leg.dep ? (leg.from || '') : 'time TBD'));
+    row.appendChild(dep);
+
+    var mid = el('div', 'fl-mid');
+    var track = el('div', 'fl-track');
+    if (n === 0) {
+      var lab = el('span', 'fl-lab center', leg.air ? shortDur(leg.air) : 'Nonstop');
+      track.appendChild(lab);
+    }
+    stops.forEach(function (s, i) {
+      var pos = n === 1 ? 50 : 18 + i * (64 / (n - 1));
+      var dot = el('i', 'fl-dot' + (s.note ? ' sep' : '')); dot.style.left = pos + '%'; track.appendChild(dot);
+      var lab = el('span', 'fl-lab', s.at || ''); lab.style.left = pos + '%'; track.appendChild(lab);
+      var un = el('span', 'fl-under'); un.style.left = pos + '%';
+      if (s.wait) un.appendChild(el('span', null, n > 1 ? shortDur(s.wait).replace(/\s/g, '') : shortDur(s.wait)));
+      if (s.note) un.appendChild(el('em', null, 'new ticket'));
+      if (un.childNodes.length) track.appendChild(un);
+    });
+    mid.appendChild(track);
+    row.appendChild(mid);
+
+    var arr = el('div', 'fl-end r');
+    var ai = el('span', 'fl-ico down'); html(ai, FICON.down); arr.appendChild(ai);
+    var at = el('b', 'fl-time', leg.arr || leg.to || '—');
+    if (leg.arr && Number(leg.arrDays) > 0) at.appendChild(el('sup', null, '+' + Number(leg.arrDays)));
+    arr.appendChild(at);
+    arr.appendChild(el('span', 'fl-code', leg.arr ? (leg.to || '') : 'time TBD'));
+    row.appendChild(arr);
+    box.appendChild(row);
+
+    var foot = el('div', 'fl-foot');
+    foot.appendChild(el('span', 'fl-nums', Array.isArray(leg.flights) ? leg.flights.join(' · ') : ''));
+    if (leg.total) { var tb = el('span', 'fl-badge time'); html(tb, FICON.clock); tb.appendChild(el('span', null, shortDur(leg.total))); foot.appendChild(tb); }
+    if (foot.textContent) box.appendChild(foot);
+    return box;
+  }
+  function flightStrips(o) {
+    if (!Array.isArray(o.legs) || !o.legs.length) return null;
+    var w = el('div', 'fls');
+    o.legs.slice(0, 4).forEach(function (l) { if (l && (l.from || l.to)) w.appendChild(flightStrip(l)); });
+    return w.childNodes.length ? w : null;
   }
 
   var TICON = {
@@ -1871,6 +1988,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
       var v = optValue(best); mid.appendChild(v.node); if (v.sub) mid.appendChild(el('span', 'tsub', v.sub));
       row.appendChild(mid); hero.appendChild(row);
       var chips = el('div', 'tchips'); optChips(best, chips, hotel); if (chips.childNodes.length) hero.appendChild(chips);
+      var fsb = flightStrips(best); if (fsb) hero.appendChild(fsb);
       var why = res.recommend && res.recommend.why;
       if (why) hero.appendChild(el('p', 'twhy', firstSentence(why)));
       var more = optMore(best);
@@ -1890,7 +2008,8 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
 
     if (rest.length) {
       wrap.appendChild(el('span', 'tlabel tgap', best ? 'Other options' : 'Options'));
-      var grid = el('div', 'tgrid' + (rest.length === 1 ? ' one' : ''));
+      var hasLegs = rest.some(function (o) { return Array.isArray(o.legs) && o.legs.length; });
+      var grid = el('div', 'tgrid' + (rest.length === 1 || hasLegs ? ' one' : ''));
       rest.forEach(function (o) {
         var k = tKind(o, hotel);
         var c = el('div', 'topt');
@@ -1901,6 +2020,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
         c.appendChild(el('div', 'topt-title', o.title || KIND_LABEL[k]));
         var v = optValue(o); c.appendChild(v.node); if (v.sub) c.appendChild(el('span', 'tsub', v.sub));
         var chips = el('div', 'tchips'); optChips(o, chips, hotel); if (chips.childNodes.length) c.appendChild(chips);
+        var fs = flightStrips(o); if (fs) c.appendChild(fs);
         expandable(c, optMore(o));
         grid.appendChild(c);
       });
