@@ -406,6 +406,13 @@ body.kitchen-on .tabbar, body.kitchen-on .fab, body.kitchen-on .composer { displ
 .k-free, .k-more { color: var(--muted); font-size: clamp(13px, 2.4vh, 22px); }
 .k-more { font-weight: 600; }
 .k-empty { color: var(--muted); font-size: clamp(18px, 3.4vh, 32px); padding: 6px 0; }
+.k-pair { display: flex; flex-direction: column; gap: clamp(8px, 1.8vh, 18px); max-width: 40em; }
+.k-pair p { margin: 0; font-size: clamp(15px, 2.9vh, 27px); line-height: 1.35; }
+.k-code { font-family: var(--display); font-weight: 600; font-size: clamp(44px, 12vh, 128px); letter-spacing: .08em; line-height: 1; color: var(--teal); font-variant-numeric: tabular-nums; }
+.k-small { background: none; border: 0; padding: 0; color: var(--muted); font: 600 clamp(12px, 2vh, 16px) var(--body); text-decoration: underline; cursor: pointer; align-self: flex-start; min-height: 32px; }
+.pair-code { width: 100%; box-sizing: border-box; min-height: 56px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: 600 28px var(--display); letter-spacing: .2em; text-align: center; text-transform: uppercase; }
+.pair-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.pair-row:first-child { border-top: 0; }
 .k-wake { position: absolute; left: 50%; bottom: clamp(10px, 2vh, 22px); transform: translateX(-50%); background: var(--ink); color: var(--bg); border: 0; border-radius: 22px; min-height: 44px; padding: 0 20px; font: 600 clamp(13px, 2vh, 17px) var(--body); cursor: pointer; }
 @media (max-aspect-ratio: 1/1) { .k-grid { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); } }
 .gate { position: fixed; inset: 0; z-index: 40; background: var(--bg); display: flex; align-items: center; justify-content: center; padding: 24px; }
@@ -620,8 +627,8 @@ body.kidmode .kid-hero .name { font-size: 28px; }
   <section id="v-cal" class="view" hidden>
     <div class="greet"><span class="date">Both calendars</span><h1>Next 7 days</h1></div>
     <div class="card" id="week"><div class="skel"></div></div>
-    <div class="btnrow" style="margin-top:12px"><button class="btn" type="button" id="kitchen-open">Open kitchen screen</button></div>
-    <p class="note">Family calendar only, in big type, for the Echo Show or a tablet. No private items or money. Leaving it needs the parent PIN.</p>
+    <div class="btnrow" style="margin-top:12px"><button class="btn" type="button" id="kitchen-add">Connect a kitchen screen</button><button class="btn" type="button" id="kitchen-open">Use this device</button></div>
+    <p class="note">Kitchen screen: Family calendar only, in big type, no private items or money. For the Echo Show, open danielgarzapineda-collab.github.io/#kitchen there and type the code it shows into “Connect a kitchen screen”. No Google sign-in needed on the screen.</p>
   </section>
 
   <section id="v-money" class="view" hidden>
@@ -2983,6 +2990,15 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     $('k-date').textContent = new Intl.DateTimeFormat('en-US', { timeZone: TZ, weekday: 'long', month: 'long', day: 'numeric' }).format(now);
     $('k-upd').textContent = S.family.at ? 'Family calendar · updated ' + agoText(new Date(S.family.at).toISOString()) : 'Family calendar';
     var tbox = $('k-today'), nbox = $('k-next'); clear(tbox); clear(nbox);
+    if (S.kpair) {
+      $('k-upd').textContent = 'Not connected yet';
+      var pr = el('div', 'k-pair');
+      pr.appendChild(el('p', null, 'To show the Family calendar here, open Colibrí on a parent’s phone → Calendar → Connect a kitchen screen, and type this code:'));
+      pr.appendChild(el('div', 'k-code', S.kpair));
+      pr.appendChild(el('p', null, 'This screen will only ever see the Family calendar.'));
+      var out = el('button', 'k-small', 'Not a kitchen screen? Sign in instead'); out.type = 'button'; out.addEventListener('click', leaveKitchenDevice); pr.appendChild(out);
+      tbox.appendChild(pr); return;
+    }
     if (S.family.raw === null) { tbox.appendChild(el('div', 'k-empty', 'Loading the Family calendar…')); return; }
     var all = normEvents(S.family.raw, 'family');
     var today = eventsOn(all, S.today);
@@ -3022,6 +3038,8 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
   });
   $('k-lock').addEventListener('click', function () { if (!S.pinHash) { setKitchen(false); return; } pinSheet('check', function () { setKitchen(false); }, 'the kitchen screen'); });
   $('k-wake').addEventListener('click', keepAwake);
+  var KDEV = { subs: [], code: null };
+  $('kitchen-add').addEventListener('click', function () { openKitchenPairing(); });
   $('kitchen').addEventListener('click', function () { if (!KEEP.playing) keepAwake(); });
   document.addEventListener('visibilitychange', function () { if (S.kitchen && document.visibilityState === 'visible') keepAwake(); });
   setInterval(function () {
@@ -3319,7 +3337,9 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
       };
       auth.getRedirectResult().catch(function (e) { gate('error', e && e.message); });
       auth.onAuthStateChanged(function (u) {
+        if (!u && S.kitchen) { gate('loading'); auth.signInAnonymously().catch(function (e) { gate('error', 'Couldn’t start the kitchen screen. ' + (e && e.message || '')); }); return; }
         if (!u) { gate('signin'); return; }
+        if (u.isAnonymous) { if (!S.kitchen) setKitchen(true); enterKitchenDevice(u, fs); return; }
         fs.doc('meta/access').get().then(function () { enterLive(u, fs); }, function () { gate('denied', u.email); auth.signOut(); });
       });
     }, function () { gate('error', 'Couldn’t load sign-in. Check your connection and try again.'); $('gate-btn').onclick = function () { location.reload(); }; });
@@ -3338,6 +3358,84 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     /* The morning briefing is written by Colibrí's scheduled task: Daniel's includes his own calendar, Andrea's only the Family one. */
     db.doc(ME === 'daniel' ? 'private_daniel/brief' : 'brief/family').onSnapshot(function (x) { S.morning = x.exists ? x.data() : null; render(); }, function () {});
     render();
+  }
+
+  /* A paired kitchen screen (Echo Show): signed in anonymously, it can read only the Family calendar and avatars once a parent approves its code. */
+  function kitchenCode() {
+    var c = null; try { c = localStorage.getItem('colibri-kcode'); } catch (e) {}
+    if (!c || !/^[A-Z2-9]{6}$/.test(c)) {
+      var abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', a = new Uint32Array(6); c = '';
+      try { crypto.getRandomValues(a); } catch (e) { for (var i = 0; i < 6; i++) a[i] = Math.floor(Math.random() * 1e9); }
+      for (var j = 0; j < 6; j++) c += abc[a[j] % abc.length];
+      try { localStorage.setItem('colibri-kcode', c); } catch (e) {}
+    }
+    return c;
+  }
+  function enterKitchenDevice(u, fs) {
+    S.kitchenDevice = true; S.mcpState = 'live'; gate('off');
+    $('k-lock').hidden = true;
+    KDEV.code = kitchenCode();
+    var stop = function () { KDEV.subs.forEach(function (f) { try { f(); } catch (e) {} }); KDEV.subs = []; };
+    var ask = function () {
+      S.kpair = KDEV.code; S.family.raw = null; renderKitchen();
+      fs.doc('kitchen_requests/' + u.uid).set({ code: KDEV.code, at: new Date().toISOString(), ua: String(navigator.userAgent || '').slice(0, 120) }).catch(function () {});
+    };
+    fs.doc('kitchen_devices/' + u.uid).onSnapshot(function (x) {
+      if (!x.exists) { stop(); ask(); return; }
+      S.kpair = null;
+      if (!KDEV.subs.length) {
+        KDEV.subs.push(fs.doc('calendar/family').onSnapshot(function (d) { if (d.exists) { var v = d.data(); S.family.raw = v.events || []; S.family.at = Date.parse(v.at) || Date.now(); } renderKitchen(); }, function () { stop(); ask(); }));
+        KDEV.subs.push(fs.doc('avatars/family').onSnapshot(function (d) { if (d.exists) { S.avatars = Object.assign({}, S.avatars, d.data()); renderKitchen(); } }, function () {}));
+      }
+      renderKitchen();
+    }, function () { ask(); });
+  }
+  function leaveKitchenDevice() {
+    try { localStorage.setItem('colibri-kitchen', ''); localStorage.removeItem('colibri-kcode'); } catch (e) {}
+    var done = function () { location.replace(location.pathname + location.search); };
+    if (LIVE && LIVE.auth) LIVE.auth.signOut().then(done, done); else done();
+  }
+  function openKitchenPairing() {
+    if (!LIVE || !LIVE.fs) { toast('Connecting a kitchen screen works in the live app.'); return; }
+    var fs = LIVE.fs;
+    openSheet(function (body) {
+      var h = el('div', 'sh-head'); var m = el('div', 'main'); m.appendChild(el('h2', null, 'Connect a kitchen screen')); m.appendChild(el('span', null, 'On the Echo Show: “Alexa, open Silk”, go to danielgarzapineda-collab.github.io/#kitchen, then type the code it shows.')); h.appendChild(m);
+      var x = el('button', 'x'); x.type = 'button'; x.setAttribute('aria-label', 'Close'); html(x, ICON.x); x.addEventListener('click', closeSheet); h.appendChild(x); body.appendChild(h);
+      var inp = el('input', 'pair-code'); inp.maxLength = 6; inp.autocomplete = 'off'; inp.setAttribute('autocapitalize', 'characters'); inp.setAttribute('aria-label', 'Code on the kitchen screen'); inp.placeholder = 'CODE';
+      body.appendChild(inp);
+      var msg = el('p', 'note', 'The screen will show only the Family calendar. You can disconnect it here anytime.'); body.appendChild(msg);
+      var go = el('button', 'btn primary', 'Connect'); go.type = 'button'; body.appendChild(go);
+      var list = el('div'); body.appendChild(list);
+      function paintList() {
+        fs.collection('kitchen_devices').get().then(function (q) {
+          clear(list); if (!q.docs.length) return;
+          list.appendChild(el('div', 'sec', '')).appendChild(el('h2', null, 'Connected screens'));
+          var card = el('div', 'card'); list.appendChild(card);
+          q.docs.forEach(function (d) {
+            var v = d.data(), row = el('div', 'pair-row');
+            row.appendChild(el('span', null, (/Silk/i.test(v.ua || '') ? 'Echo Show' : 'Screen') + ' · connected ' + (v.at ? fmtDay(ymdInTZ(new Date(v.at))) : '') + (v.by ? ' by ' + (PEOPLE[v.by] || v.by) : '')));
+            var rm = el('button', 'btn', 'Disconnect'); rm.type = 'button'; rm.style.flex = '0 0 auto'; rm.style.padding = '0 14px'; rm.style.minHeight = '40px';
+            rm.addEventListener('click', function () { fs.doc('kitchen_devices/' + d.id).delete().then(function () { toast('Screen disconnected'); paintList(); }, function () { toast('Couldn’t disconnect. Try again.'); }); });
+            row.appendChild(rm); card.appendChild(row);
+          });
+        }, function () {});
+      }
+      paintList();
+      go.addEventListener('click', function () {
+        var code = inp.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+        if (code.length !== 6) { msg.textContent = 'The code has 6 letters and numbers.'; return; }
+        go.disabled = true; msg.textContent = 'Looking for the screen…';
+        fs.collection('kitchen_requests').where('code', '==', code).get().then(function (q) {
+          if (!q.docs.length) { go.disabled = false; msg.textContent = 'No screen is showing that code. Check it on the Echo Show and try again.'; return; }
+          var d = q.docs.slice().sort(function (a, b) { return String(b.data().at).localeCompare(String(a.data().at)); })[0], v = d.data();
+          return fs.doc('kitchen_devices/' + d.id).set({ by: ME, at: new Date().toISOString(), code: code, ua: v.ua || '' }).then(function () {
+            q.docs.forEach(function (r) { r.ref.delete().catch(function () {}); });
+            go.disabled = false; inp.value = ''; msg.textContent = 'Connected. The calendar will appear on the screen in a few seconds.'; toast('Kitchen screen connected'); paintList();
+          });
+        }).catch(function (e) { go.disabled = false; msg.textContent = 'Couldn’t connect: ' + (e && e.message || 'try again'); });
+      });
+      setTimeout(function () { inp.focus(); }, 50);
+    }, 'Connect a kitchen screen');
   }
 
   function startDemo(D) {
