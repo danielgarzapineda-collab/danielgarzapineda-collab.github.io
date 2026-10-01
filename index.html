@@ -109,6 +109,9 @@ h1, h2, h3 { margin: 0; font-family: var(--display); font-weight: 600; text-wrap
 
 .hero .brief-tag { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--on-hero-muted); margin-bottom: -6px; }
 .hero #hero-brief { white-space: pre-line; }
+.chip[aria-pressed="true"] { border: 2px solid var(--teal); background: var(--teal-soft); color: var(--teal-strong); font-weight: 700; }
+.bill-line .sub { font-size: 12px; color: var(--muted); }
+.bills-all { padding: 12px 14px; border-top: 1px solid var(--line-soft); width: 100%; }
 .ask-handoff { display: flex; gap: 8px; flex-wrap: wrap; margin: 2px 0 6px 38px; }
 
 /* sections */
@@ -469,7 +472,7 @@ body.kidmode .kid-hero .name { font-size: 28px; }
     <div class="card budget" id="budget"><div class="skel"></div></div>
     <div class="sec"><h2>Bills</h2><span class="aside">Mark paid when it's done</span></div>
     <div class="card" id="bills"><div class="skel"></div></div>
-    <p class="note">Read from your Card Alerts label. Nothing is paid, moved or deleted from here.</p>
+    <p class="note">Card payments come from your Card Alerts label; other bills from your bills list. Nothing is paid, moved or deleted from here.</p>
   </section>
 
   <section id="v-kids" class="view" hidden>
@@ -815,6 +818,17 @@ if (typeof module !== 'undefined') module.exports = { normEvents: normEvents, ev
     txns.push({ id: 'ex-t-n2', date: addDays(t, dayNo > 2 ? -2 : 0), merchant: 'PayPal *Marketplace', amount: -25.7, line_id: 'D05', card: 'Amex ·1004', type: 'PURCHASE', needs_line: true });
     if (dayNo > 3) txns.push({ id: 'ex-t-r1', date: addDays(t, -1), merchant: 'Amazon.com refund', amount: 18.99, line_id: 'D02', card: 'Amex ·1004', type: 'REFUND' });
     s['ledger/summary'] = { month: month, operating_target: total, spent_total: Math.round(spent * 100) / 100, needs_line: 2, lines: lines, txns: txns, last_sync: iso(addDays(t, -1), '23:02'), ledger_url: 'https://claude.ai' };
+    s['bills/recurring'] = { at: iso(t, '06:00'), items: [
+      { id: 'mortgage', name: 'Mortgage', group: 'Home & loans', amount: 1850, day: 1, every: 'month', pay: 'AutoPay from checking' },
+      { id: 'car', name: 'Car loan', group: 'Home & loans', amount: 412.5, day: 15, every: 'month' },
+      { id: 'homeins', name: 'Home insurance', group: 'Home & loans', budget: 110, every: 'varies' },
+      { id: 'power', name: 'Electric & gas', group: 'Utilities', budget: 260, every: 'month' },
+      { id: 'net', name: 'Internet', group: 'Utilities', amount: 80, day: Number(addDays(t, 3).slice(8, 10)), every: 'month', pay: 'AutoPay' },
+      { id: 'phone', name: 'Phone plan', group: 'Utilities', amount: 75, day: 20, every: 'month' },
+      { id: 'stream', name: 'Streaming', group: 'Subscriptions', amount: 15.49, day: Number(addDays(t, 6).slice(8, 10)), every: 'month' },
+      { id: 'music', name: 'Music', group: 'Subscriptions', amount: 10.99, day: 5, every: 'month' },
+      { id: 'swim', name: 'Swim lessons', group: 'Kids & activities', amount: 120, day: 1, every: 'month' }
+    ] };
     s['points/summary'] = { as_of: t, deadlines: [
       { code: 'AMEX', title: 'Use this month’s dining credit', date: addDays(t, 20), note: 'Sample deadline.' },
       { code: 'IHG', title: '2x points on hotel stays', start: addDays(t, 1), date: addDays(t, 90), note: 'Sample promo.' },
@@ -930,7 +944,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     mail: { alerts: null, err: null, at: null },
     ledger: null, points: null, claims: {}, paid: {}, trips: [],
     avatars: { daniel: 'monarch', andrea: 'cardinal', nicolas: 'fox', dany: 'owl', montse: 'axolotl', motion: true },
-    brief: { text: '', state: 'idle' }, morning: null, mcpState: 'waiting', dbState: 'waiting',
+    brief: { text: '', state: 'idle' }, morning: null, bills: null, mcpState: 'waiting', dbState: 'waiting',
     klog: [], kred: [], kconf: null, kid: 'dany', kidMode: false, pinHash: null
   };
   var mcp = null, db = null, sampleFn = null, perms = null, unsubs = [];
@@ -1156,8 +1170,141 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     }
   }
 
-  function billList() { return S.mail.alerts ? paymentsDue(S.mail.alerts, S.today) : []; }
+  function billList() {
+    var cards = S.mail.alerts ? paymentsDue(S.mail.alerts, S.today) : [];
+    /* A reminder and a statement for the same card and date show once (keep the one with the statement). */
+    var seen = {}; cards = cards.slice().sort(function (a, b) { return (b.statement ? 1 : 0) - (a.statement ? 1 : 0); }).filter(function (d) {
+      if (!d.due) return true; var k = d.brand + '|' + d.due; if (seen[k]) return false; seen[k] = true; return true;
+    });
+    var rec = recurringList().filter(function (d) { return d.due && dayDiff(S.today, d.due) <= 10; });
+    return cards.concat(rec).sort(function (a, b) { return (a.due || '9999') < (b.due || '9999') ? -1 : 1; });
+  }
   function billKey(d) { return keyOf(d.key + '_' + (d.due || d.id)); }
+
+  /* ---------- Recurring bills: mortgage, loans, utilities, subscriptions (doc bills/recurring) ---------- */
+  var BILL_GROUPS = ['Home & loans', 'Utilities', 'Subscriptions', 'Kids & activities', 'Other'];
+  var EVERY = { month: 'Monthly', year: 'Yearly', quarter: 'Every 3 months', varies: 'Varies' };
+  function pad2(n) { return String(n).padStart(2, '0'); }
+  function dueIn(y, m, day) { return y + '-' + pad2(m) + '-' + pad2(Math.min(day, daysInMonth(y + '-' + pad2(m)))); }
+  function nextDue(it) {
+    var day = Number(it.day); if (!day) return null;
+    var t = S.today, y = Number(t.slice(0, 4)), m = Number(t.slice(5, 7)), every = it.every || 'month', d;
+    if (every === 'year') {
+      var mo = Number(it.month); if (!mo) return null;
+      d = dueIn(y, mo, day);
+      if (dayDiff(t, d) < 0 && (S.paid[keyOf('rec_' + it.id + '_' + d)] || dayDiff(t, d) < -3)) d = dueIn(y + 1, mo, day);
+      return d;
+    }
+    if (every === 'quarter') {
+      var start = Number(it.month) || m; d = null;
+      for (var i = -3; i < 15 && !d; i++) { var mm = m + i, yy = y + Math.floor((mm - 1) / 12); mm = ((mm - 1) % 12 + 12) % 12 + 1; if (((mm - start) % 3 + 3) % 3 === 0) { var c = dueIn(yy, mm, day); if (dayDiff(t, c) >= -3 && !(dayDiff(t, c) < 0 && S.paid[keyOf('rec_' + it.id + '_' + c)])) d = c; } }
+      return d;
+    }
+    if (every !== 'month') return null;
+    d = dueIn(y, m, day);
+    if (dayDiff(t, d) < 0 && (S.paid[keyOf('rec_' + it.id + '_' + d)] || dayDiff(t, d) < -3)) { m++; if (m > 12) { m = 1; y++; } d = dueIn(y, m, day); }
+    return d;
+  }
+  function billItems() { return S.bills && Array.isArray(S.bills.items) ? S.bills.items : []; }
+  function recurringList() {
+    return billItems().filter(function (it) { return !it.off; }).map(function (it) {
+      var amt = it.amount != null && it.amount !== '' ? Number(it.amount) : null;
+      return { rec: true, id: it.id, key: 'rec_' + it.id, brand: it.name, due: nextDue(it), amount: amt, budget: it.budget || null, pay: it.pay || '', item: it,
+        line: (amt != null ? money2(amt) : it.budget ? '≈' + usd(it.budget) + ' budgeted' : 'Amount not known') + (it.pay ? ' · ' + it.pay : '') };
+    });
+  }
+  function monthlyOf(it) {
+    var a = it.amount != null && it.amount !== '' ? Number(it.amount) : (it.budget ? Number(it.budget) : null);
+    if (a == null || isNaN(a)) return null;
+    if (it.amount == null || it.amount === '') return a; /* budget figures are already per month */
+    return it.every === 'year' ? a / 12 : it.every === 'quarter' ? a / 3 : a;
+  }
+  function saveBills(items, msg) {
+    var old = S.bills; S.bills = { items: items, at: new Date().toISOString(), by: ME }; render();
+    if (!db) return Promise.resolve();
+    return db.doc('bills/recurring').set(S.bills).then(function () { if (msg) toast(msg); }, function () { S.bills = old; render(); toast("Couldn't save that. Try again."); });
+  }
+  function openBills() {
+    openSheet(function (body) {
+      var items = billItems().filter(function (it) { return !it.off; });
+      var known = 0, est = 0, unknown = 0;
+      items.forEach(function (it) { var mo = monthlyOf(it); if (mo == null) unknown++; else if (it.amount != null && it.amount !== '') known += mo; else est += mo; });
+      sheetHead(body, 'BILLS', String(items.length), 'Bills and subscriptions', [
+        usd(Math.round(known + est)) + ' a month' + (est ? ' (' + usd(Math.round(est)) + ' of it estimated from the budget)' : ''),
+        unknown ? unknown + ' without an amount yet · tap any bill to fill it in' : 'Tap any bill to change it'
+      ]);
+      BILL_GROUPS.forEach(function (g) {
+        var list = items.filter(function (it) { return (it.group || 'Other') === g; });
+        if (!list.length) return;
+        var box = el('div', 'lg-group'), sum = 0;
+        list.forEach(function (it) { sum += monthlyOf(it) || 0; });
+        var hd = el('div', 'eyebrow'); hd.appendChild(el('span', null, g)); hd.appendChild(el('span', null, usd(Math.round(sum)) + '/mo')); box.appendChild(hd);
+        list.sort(function (a, b) { return (Number(a.day) || 99) - (Number(b.day) || 99); }).forEach(function (it) {
+          var r = el('button', 'lg-line bill-line'); r.type = 'button';
+          var top = el('div', 'row1'); top.appendChild(el('b', null, it.name));
+          top.appendChild(el('span', null, it.amount != null && it.amount !== '' ? money2(Number(it.amount)) : it.budget ? '≈' + usd(it.budget) : '—'));
+          r.appendChild(top);
+          var nd = nextDue(it);
+          var bits = [nd ? 'Next ' + relDay(S.today, nd).replace(/^(Today|Tomorrow)$/, function (x) { return x.toLowerCase(); }) : it.day ? 'Around the ' + ordinal(it.day) : 'Due date not known', EVERY[it.every || 'month'] || ''];
+          if (it.pay) bits.push(it.pay);
+          r.appendChild(el('span', 'sub', bits.filter(Boolean).join(' · ')));
+          if (it.note) r.appendChild(el('span', 'sub', it.note));
+          r.addEventListener('click', function () { editBill(it); });
+          box.appendChild(r);
+        });
+        body.appendChild(box);
+      });
+      var add = el('button', 'btn', 'Add a bill'); add.type = 'button'; add.addEventListener('click', function () { editBill(null); });
+      body.appendChild(add);
+      body.appendChild(el('p', 'note', 'Amounts marked ≈ come from your budget, not a bill. Bills that don\'t email you (utilities, water, insurance, HOA) need their date filled in once. Nothing is paid from here.'));
+    }, 'Bills and subscriptions', true);
+  }
+  function ordinal(n) { n = Number(n); var s2 = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s2[(v - 20) % 10] || s2[v] || s2[0]); }
+  function editBill(it) {
+    var isNew = !it; it = it || { id: 'b' + Date.now().toString(36), name: '', group: 'Other', every: 'month' };
+    openSheet(function (body) {
+      sheetHead(body, 'BILL', it.day ? String(it.day) : '·', isNew ? 'Add a bill' : it.name, [it.source ? 'Found in: ' + it.source : 'Your entry']);
+      function box(label, input) { var b = el('div', 'fbox'); b.appendChild(el('span', null, label)); b.appendChild(input); return b; }
+      function inp(type, val, ph) { var i = el('input'); i.type = type; i.value = val == null ? '' : val; if (ph) i.placeholder = ph; return i; }
+      var nm = inp('text', it.name, 'Mortgage'), am = inp('number', it.amount, it.budget ? '≈' + it.budget + ' budgeted' : '0.00'), dy = inp('number', it.day, '1–31'), mo = inp('number', it.month, '1–12'), py = inp('text', it.pay, 'AutoPay, card, Bilt…'), nt = inp('text', it.note, '');
+      am.step = '0.01'; am.inputMode = 'decimal'; dy.min = 1; dy.max = 31; dy.inputMode = 'numeric'; mo.min = 1; mo.max = 12; mo.inputMode = 'numeric';
+      body.appendChild(box('Name', nm));
+      var g1 = el('div', 'fgrid'); g1.appendChild(box('Amount ($)', am)); g1.appendChild(box('Due day of month', dy)); body.appendChild(g1);
+      var every = it.every || 'month', grp = it.group || 'Other';
+      function chips(label, opts, cur, set) {
+        var w = el('div', 'fbox'); w.appendChild(el('span', null, label)); var row = el('div', 'chips');
+        opts.forEach(function (o) { var c = el('button', 'chip', o[1]); c.type = 'button'; c.setAttribute('aria-pressed', String(o[0] === cur)); c.addEventListener('click', function () { cur = o[0]; set(o[0]); row.querySelectorAll('.chip').forEach(function (x) { x.setAttribute('aria-pressed', String(x === c)); }); monthBox.hidden = every === 'month' || every === 'varies'; }); row.appendChild(c); });
+        w.appendChild(row); return w;
+      }
+      var monthBox = box('Month it\'s due (first one, for every 3 months)', mo);
+      body.appendChild(chips('How often', Object.keys(EVERY).map(function (k) { return [k, EVERY[k]]; }), every, function (v) { every = v; }));
+      monthBox.hidden = every === 'month' || every === 'varies'; body.appendChild(monthBox);
+      body.appendChild(chips('Group', BILL_GROUPS.map(function (g) { return [g, g]; }), grp, function (v) { grp = v; }));
+      body.appendChild(box('How it\'s paid', py));
+      body.appendChild(box('Note', nt));
+      var row = el('div', 'btnrow');
+      if (!isNew) {
+        var rm = el('button', 'btn', 'Remove'), armed = false; rm.type = 'button';
+        rm.addEventListener('click', function () {
+          if (!armed) { armed = true; rm.textContent = 'Tap again to remove'; return; }
+          saveBills(billItems().filter(function (x) { return x.id !== it.id; }), 'Removed').then(function () { openBills(); });
+        });
+        row.appendChild(rm);
+      }
+      var ok = el('button', 'btn primary', 'Save'); ok.type = 'button';
+      ok.addEventListener('click', function () {
+        var name = nm.value.trim(); if (!name) { nm.focus(); return; }
+        var d = Number(dy.value), a = am.value === '' ? null : Math.round(Number(am.value) * 100) / 100;
+        if (dy.value !== '' && !(d >= 1 && d <= 31)) { dy.focus(); toast('Due day is 1 to 31'); return; }
+        if (a != null && (isNaN(a) || a < 0)) { am.focus(); return; }
+        var rec = Object.assign({}, it, { name: name.slice(0, 80), amount: a, day: dy.value === '' ? null : d, every: every, group: grp, pay: py.value.trim().slice(0, 80), note: nt.value.trim().slice(0, 140), month: mo.value === '' ? null : Math.min(12, Math.max(1, Number(mo.value))) });
+        var list = billItems().slice(), i = list.map(function (x) { return x.id; }).indexOf(it.id);
+        if (i >= 0) list[i] = rec; else list.push(rec);
+        saveBills(list, 'Saved for both of you').then(function () { openBills(); });
+      });
+      row.appendChild(ok); body.appendChild(row);
+    }, 'Edit bill', true);
+  }
   function nextDeadline() {
     var p = S.points; if (!p || !p.deadlines) return null;
     var list = p.deadlines.filter(function (d) { return d.date && dayDiff(S.today, d.date) >= 0 && !(d.start && d.start > S.today); })
@@ -1206,10 +1353,10 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
       var a = el('button', 'linkbtn', 'All budget lines and purchases ›'); a.type = 'button'; a.addEventListener('click', function () { openLedger(); }); b.appendChild(a);
     }
     var bl = $('bills');
-    if (!S.mail.alerts) { if (S.mcpState === 'none' || S.mail.err) { clear(bl); bl.appendChild(el('div', 'empty', 'Bills load from your card alerts when this app opens in Claude.')); } return; }
+    if (!S.mail.alerts && !S.bills) { if (S.mcpState === 'none' || S.mail.err) { clear(bl); bl.appendChild(el('div', 'empty', 'Bills load from your card alerts when this app opens in Claude.')); } return; }
     clear(bl);
     var list = billList();
-    if (!list.length) bl.appendChild(el('div', 'empty', 'No statements or payment reminders in the last 35 days.'));
+    if (!list.length) bl.appendChild(el('div', 'empty', 'Nothing due in the next 10 days.'));
     list.forEach(function (d) {
       var row = el('div', 'bill'), k = billKey(d), paid = !!S.paid[k];
       var chip = el('div', 'datechip ' + (paid ? 'dc-teal' : !d.due ? 'dc-mute' : dayDiff(S.today, d.due) <= 2 ? 'dc-red' : dayDiff(S.today, d.due) <= 7 ? 'dc-amber' : 'dc-teal'));
@@ -1217,13 +1364,16 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
       else chip.appendChild(el('span', null, 'AUTO'));
       row.appendChild(chip);
       var m = el('div', 'main'); m.appendChild(el('b', null, d.brand + (d.last4 ? ' ·' + d.last4 : '')));
-      m.appendChild(el('span', null, d.statement ? 'Statement ' + d.statement + (d.minimum ? ' · min ' + d.minimum : '') : d.monthly ? d.monthly + ' monthly' : d.subject));
+      m.appendChild(el('span', null, d.rec ? d.line : d.statement ? 'Statement ' + d.statement + (d.minimum ? ' · min ' + d.minimum : '') : d.monthly ? d.monthly + ' monthly' : d.subject));
       row.appendChild(m);
       var p = el('button', 'pay' + (paid ? ' done' : ''), paid ? 'Paid' : 'Mark paid'); p.type = 'button';
       p.addEventListener('click', function () { togglePaid(k, d); });
       row.appendChild(p);
       bl.appendChild(row);
     });
+    var n = billItems().filter(function (it) { return !it.off; }).length;
+    var all = el('button', 'linkbtn bills-all', n ? 'All ' + n + ' bills and subscriptions ›' : 'Add your mortgage, utilities and subscriptions ›'); all.type = 'button';
+    all.addEventListener('click', function () { openBills(); }); bl.appendChild(all);
   }
   function meter(spent, target, frac, status, showPace, thin) {
     var m = el('div', 'meter' + (thin ? ' thin' : ''));
@@ -1655,7 +1805,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
   }
   function togglePaid(k, d) {
     if (S.paid[k]) { var old = S.paid[k]; delete S.paid[k]; render(); if (db) db.doc('paid/' + k).delete().then(null, function () { S.paid[k] = old; render(); }); return; }
-    var rec = { by: ME, at: new Date().toISOString(), label: d.brand + (d.last4 ? ' ·' + d.last4 : ''), due: d.due || null };
+    var rec = { by: ME, at: new Date().toISOString(), label: d.brand + (d.last4 ? ' ·' + d.last4 : ''), due: d.due || null }; if (d.rec && d.amount != null) rec.amount = d.amount;
     S.paid[k] = rec; render();
     if (db) db.doc('paid/' + k).set(rec).then(function () { toast('Marked paid'); }, function () { delete S.paid[k]; render(); toast("Couldn't save that. Try again."); });
   }
@@ -1938,7 +2088,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     var tm = eventsOn(all, addDays(t, 1)).filter(function (e) { return !e.allDay; });
     if (tm.length) lines.push('Tomorrow starts with ' + tm[0].title + ' at ' + fmtTime(tm[0].start) + '.');
     var bills = billList().filter(function (d) { return d.due && dayDiff(t, d.due) <= 7 && !S.paid[billKey(d)]; });
-    if (bills.length) lines.push('Due soon: ' + bills.slice(0, 3).map(function (d) { return d.brand + (d.last4 ? ' ·' + d.last4 : '') + ' ' + rl(d.due); }).join('; ') + (bills.length > 3 ? '; plus ' + (bills.length - 3) + ' more.' : '.'));
+    if (bills.length) lines.push('Due soon: ' + bills.slice(0, 3).map(function (d) { return d.brand + (d.last4 ? ' ·' + d.last4 : '') + (d.rec && d.amount != null ? ' ' + usd(Math.round(d.amount)) : '') + ' ' + rl(d.due); }).join('; ') + (bills.length > 3 ? '; plus ' + (bills.length - 3) + ' more.' : '.'));
     return lines.join('\n');
   }
   $('brief-btn').addEventListener('click', function () {
@@ -2567,6 +2717,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
   function subscribeDb() {
     db.doc('ledger/summary').onSnapshot(function (x) { S.ledger = x.exists ? x.data() : null; render(); }, function () {});
     db.doc('points/summary').onSnapshot(function (x) { S.points = x.exists ? x.data() : null; render(); }, function () {});
+    db.doc('bills/recurring').onSnapshot(function (x) { S.bills = x.exists ? x.data() : null; render(); }, function () {});
     db.doc('avatars/family').onSnapshot(function (x) { if (x.exists) { S.avatars = Object.assign({}, S.avatars, x.data()); render(); } }, function () {});
     db.collection('claims').onSnapshot(function (q) { var m = {}; q.docs.forEach(function (x) { m[x.id] = x.data(); }); S.claims = m; render(); }, function () {});
     db.collection('paid').onSnapshot(function (q) { var m = {}; q.docs.forEach(function (x) { m[x.id] = x.data(); }); S.paid = m; render(); }, function () {});
