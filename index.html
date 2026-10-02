@@ -415,6 +415,45 @@ body.kitchen-on .tabbar, body.kitchen-on .fab, body.kitchen-on .composer { displ
 .pair-row:first-child { border-top: 0; }
 .k-wake { position: absolute; left: 50%; bottom: clamp(10px, 2vh, 22px); transform: translateX(-50%); background: var(--ink); color: var(--bg); border: 0; border-radius: 22px; min-height: 44px; padding: 0 20px; font: 600 clamp(13px, 2vh, 17px) var(--body); cursor: pointer; }
 @media (max-aspect-ratio: 1/1) { .k-grid { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); } }
+.cash { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+.cash .top { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+.cash .lbl { font-size: 13px; font-weight: 600; color: var(--muted); }
+.cash .big { font-family: var(--display); font-size: 34px; font-weight: 600; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.cash .sub { font-size: 12px; color: var(--muted); }
+.cash .owed { text-align: left; }
+.cash .owed b { font-family: var(--display); font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; display: block; }
+.ccard { display: grid; grid-template-columns: 6px minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line-soft); cursor: pointer; background: none; border-left: 0; border-right: 0; border-bottom: 0; font: inherit; color: inherit; text-align: left; width: 100%; }
+.ccard .sw { grid-row: span 2; align-self: stretch; border-radius: 3px; background: var(--cc, var(--teal)); }
+.ccard .nm { font-size: 15px; font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+.ccard .amt { font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.ccard .meta { grid-column: 2 / 4; font-size: 12px; color: var(--muted); }
+.ccard .meta .warn { color: var(--red-ink); font-weight: 700; }
+.ccard .meta .q { color: var(--amber-ink); font-weight: 600; }
+.cashflow { padding: 14px 14px 6px; }
+.cf-head { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.cf-head b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.cf-head .low b { color: var(--red-ink); }
+.cf-svg { width: 100%; height: auto; display: block; margin: 8px 0 4px; overflow: visible; }
+.cf-svg .ax { stroke: var(--line); stroke-width: 1; }
+.cf-svg .zero { stroke: var(--red); stroke-width: 1; stroke-dasharray: 3 3; }
+.cf-svg .ln { fill: none; stroke: var(--teal); stroke-width: 2.25; stroke-linejoin: round; }
+.cf-svg .ar { fill: var(--teal); opacity: .12; }
+.cf-svg .lowdot { fill: var(--red); }
+.cf-svg text { font: 600 10px var(--body); fill: var(--muted); font-variant-numeric: tabular-nums; }
+.cf-ev { display: grid; grid-template-columns: 50px minmax(0, 1fr) auto; gap: 2px 10px; align-items: baseline; padding: 9px 0; border-top: 1px solid var(--line-soft); font-size: 14px; }
+.cf-ev .d { font-size: 12px; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+.cf-ev .l { min-width: 0; overflow-wrap: anywhere; }
+.cf-ev .l small { display: block; font-size: 12px; color: var(--muted); }
+.cf-ev .a { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cf-ev .a.in { color: var(--teal); }
+.cf-ev .a small { display: block; font-size: 12px; font-weight: 600; color: var(--muted); }
+.cf-ev .a small.neg { color: var(--red-ink); }
+.cf-note { font-size: 12px; color: var(--muted); padding: 8px 0 10px; }
+.fld { display: flex; flex-direction: column; gap: 6px; }
+.fld label { font-size: 13px; font-weight: 600; }
+.fld input, .fld select { min-height: 48px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: 500 17px var(--body); padding: 0 12px; box-sizing: border-box; width: 100%; font-variant-numeric: tabular-nums; }
+.fld .hint { font-size: 12px; color: var(--muted); }
+.fld2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .gate { position: fixed; inset: 0; z-index: 40; background: var(--bg); display: flex; align-items: center; justify-content: center; padding: 24px; }
 .gate[hidden] { display: none; }
 .gate-card { width: 100%; max-width: 360px; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
@@ -635,6 +674,12 @@ body.kidmode .kid-hero .name { font-size: 28px; }
     <div class="greet"><span class="date" id="money-sub"></span><h1>Money</h1></div>
     <div id="mail-notice"></div>
     <div class="card budget" id="budget"><div class="skel"></div></div>
+    <div id="cash-wrap" hidden>
+      <div class="sec"><h2>Cash and cards</h2><span class="aside">Only you see this</span></div>
+      <div class="card cash" id="cash"></div>
+      <div class="sec"><h2>Checking, next 60 days</h2><span class="aside">If every card is paid</span></div>
+      <div class="card cashflow" id="cashflow"></div>
+    </div>
     <div class="sec"><h2>Bills</h2><span class="aside">Mark paid when it's done</span></div>
     <div class="card" id="bills"><div class="skel"></div></div>
     <p class="note">Card payments come from your Card Alerts label; other bills from your bills list. Nothing is paid, moved or deleted from here.</p>
@@ -1551,6 +1596,229 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     var all = el('button', 'linkbtn bills-all', n ? 'All ' + n + ' bills and subscriptions ›' : 'Add your mortgage, utilities and subscriptions ›'); all.type = 'button';
     all.addEventListener('click', function () { openBills(); }); bl.appendChild(all);
   }
+
+  /* ---------- Cash and cards (Daniel only): balances you entered, adjusted by the ledger's alert-email rows since then, and a day-by-day simulation of checking as each card gets paid. ---------- */
+  var CARD_COLORS = ['var(--p-daniel)', 'var(--p-montse)', 'var(--p-nicolas)', 'var(--p-andrea)', 'var(--p-dany)', 'var(--p-all)'];
+  function m2(n) { n = Number(n) || 0; return (n < 0 ? '−' : '') + '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function addMonthsYmd(ymd, n, day) {
+    var p = ymd.split('-').map(Number), y = p[0], m = p[1] - 1 + n; y += Math.floor(m / 12); m = ((m % 12) + 12) % 12;
+    var dim = new Date(Date.UTC(y, m + 1, 0)).getUTCDate(); var d = Math.min(day || p[2], dim);
+    return y + '-' + pad2(m + 1) + '-' + pad2(d);
+  }
+  function asOfText(iso) {
+    var t = new Date(iso); if (isNaN(t)) return '';
+    return fmtDay(ymdInTZ(t)).replace(/^\w+, /, '') + ', ' + fmtTime(t);
+  }
+  function cashModel() {
+    var B = S.bal, F = S.balFeed || {};
+    if (!B || !B.anchor) return null;
+    var a = B.anchor, aday = ymdInTZ(new Date(a.as_of)), chkId = B.checking_id || 'chase-checking-2872';
+    var cards = (B.accounts || []).filter(function (x) { return x.kind === 'card'; });
+    var bal = {}, st = {}, paidSince = {}, used = {}, changes = 0;
+    cards.forEach(function (c) { bal[c.id] = Number((a.cards || {})[c.id]) || 0; st[c.id] = Object.assign({}, (B.statements || {})[c.id] || {}); });
+    (F.statements || []).forEach(function (x) {
+      var cur = st[x.account_id]; if (!cur || !x.closing_date || x.statement_balance == null) return;
+      if (!cur.closed || x.closing_date > cur.closed) st[x.account_id] = { balance: Number(x.statement_balance), due: x.due_date, closed: x.closing_date, min: x.min_due, paid: 0, source: 'email' };
+    });
+    var chk = Number(a.checking) || 0;
+    var rows = (F.rows || []).filter(function (r) { return r && r.txn_date > aday && r.status !== 'void'; }).sort(function (x, y) { return x.txn_date < y.txn_date ? -1 : x.txn_date > y.txn_date ? 1 : 0; });
+    var chkRows = rows.filter(function (r) { return r.account_id === chkId; });
+    rows.forEach(function (r) {
+      var amt = Number(r.amount) || 0;
+      if (bal.hasOwnProperty(r.account_id)) {
+        bal[r.account_id] -= amt; changes++;
+        if (r.type === 'PAYMENT' && amt > 0) {
+          var s0 = st[r.account_id]; if (s0 && (!s0.closed || r.txn_date > s0.closed)) paidSince[r.account_id] = (paidSince[r.account_id] || 0) + amt;
+          var mt = chkRows.filter(function (x) { return !used[x.id] && Math.abs(Math.abs(Number(x.amount)) - amt) < 0.01 && Math.abs(dayDiff(x.txn_date, r.txn_date)) <= 3; })[0];
+          if (mt) used[mt.id] = 1; else chk -= amt; /* card payments come out of checking even when Chase sends no debit alert */
+        }
+      } else if (r.account_id === chkId) { chk += amt; changes++; }
+    });
+    var end = addDays(S.today, B.horizon_days || 60), ev = [], out = [];
+    cards.forEach(function (c, i) {
+      var s = st[c.id] || {}, cur = Math.max(0, bal[c.id]), unknown = s.balance == null, due1 = unknown ? cur : Math.max(0, Math.min(Number(s.balance) - (Number(s.paid) || 0) - (paidSince[c.id] || 0), cur));
+      var info = { id: c.id, label: c.label, last4: c.last4, color: CARD_COLORS[i % CARD_COLORS.length], balance: cur, due: s.due || null, dueAmt: due1, unknown: unknown, rest: Math.max(0, cur - due1), late: !!(s.due && s.due < S.today && due1 > 0.005), st: s };
+      if (s.due) {
+        var when = s.due < S.today ? S.today : s.due;
+        if (due1 > 0.005) ev.push({ date: when, kind: 'card', id: c.id, color: info.color, label: c.label + (info.late ? ' (past due)' : ''), sub: unknown ? 'Statement amount unknown, assuming the whole balance' : 'Statement balance', amount: -due1 });
+        var d2 = addMonthsYmd(s.due, 1, Number(s.due.slice(8, 10))); while (d2 < S.today) d2 = addMonthsYmd(d2, 1, Number(s.due.slice(8, 10)));
+        info.next2 = d2;
+        if (info.rest > 0.005 && d2 <= end) ev.push({ date: d2, kind: 'card', id: c.id, color: info.color, label: c.label, sub: 'Next statement, charges so far', amount: -info.rest });
+      } else if (cur > 0.005) {
+        var dd = addDays(S.today, 30); info.guess = dd;
+        ev.push({ date: dd, kind: 'card', id: c.id, color: info.color, label: c.label, sub: 'No due date yet, guessed in 30 days', amount: -cur });
+      }
+      out.push(info);
+    });
+    var p = B.payday;
+    if (p && p.amount && p.next) {
+      var d = p.next, step = Number(p.every_days) || 14;
+      while (d < S.today) d = addDays(d, step);
+      for (; d <= end; d = addDays(d, step)) if (d > aday) ev.push({ date: d, kind: 'in', label: 'Payday', sub: p.label || 'Direct deposit', amount: Number(p.amount) });
+    }
+    (B.bills || []).forEach(function (b) {
+      if (!b.amount || !b.day || b.off) return;
+      for (var k = 0; k < 4; k++) {
+        var bd = addMonthsYmd(S.today.slice(0, 8) + '01', k, Number(b.day));
+        if (bd <= aday || bd < S.today || bd > end) continue;
+        var seen = chkRows.some(function (x) { return Math.abs(Math.abs(Number(x.amount)) - b.amount) <= b.amount * 0.01 + 0.01 && Math.abs(dayDiff(x.txn_date, bd)) <= 5; });
+        if (!seen) ev.push({ date: bd, kind: 'bill', label: b.label, sub: b.how || 'From checking', amount: -Number(b.amount) });
+      }
+    });
+    ev.sort(function (x, y) { return x.date < y.date ? -1 : x.date > y.date ? 1 : (y.amount - x.amount); });
+    var run = chk, low = { v: chk, date: S.today };
+    ev.forEach(function (e) { run += e.amount; e.after = run; if (run < low.v) low = { v: run, date: e.date }; });
+    var owed = out.reduce(function (t, c) { return t + c.balance; }, 0);
+    return { asOf: a.as_of, aday: aday, checking: chk, cards: out, owed: owed, events: ev, low: low, end: end, endBal: run, changes: changes, feedAt: F.at || null };
+  }
+  function cashChart(m) {
+    var W = 340, H = 150, L = 4, R = 4, T = 14, Bm = 18, days = Math.max(1, dayDiff(S.today, m.end));
+    var pts = [{ d: 0, v: m.checking }]; m.events.forEach(function (e) { pts.push({ d: dayDiff(S.today, e.date), v: e.after }); });
+    var vals = pts.map(function (q) { return q.v; }), max = Math.max.apply(null, vals.concat([0])), min = Math.min.apply(null, vals.concat([0]));
+    if (max === min) max = min + 1;
+    function X(d) { return L + (W - L - R) * d / days; } function Y(v) { return T + (H - T - Bm) * (max - v) / (max - min); }
+    var path = 'M' + X(0).toFixed(1) + ',' + Y(m.checking).toFixed(1), prev = m.checking;
+    m.events.forEach(function (e) { var x = X(dayDiff(S.today, e.date)).toFixed(1); path += ' H' + x + ' V' + Y(e.after).toFixed(1); prev = e.after; });
+    path += ' H' + X(days).toFixed(1);
+    var area = path + ' V' + Y(Math.max(min, 0)).toFixed(1) + ' H' + X(0).toFixed(1) + ' Z';
+    var svg = '<svg class="cf-svg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Checking balance over the next ' + days + ' days, lowest ' + usd(m.low.v) + ' on ' + fmtDay(m.low.date) + '">';
+    svg += '<line class="ax" x1="' + L + '" x2="' + (W - R) + '" y1="' + (H - Bm) + '" y2="' + (H - Bm) + '"/>';
+    if (min < 0) svg += '<line class="zero" x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(0).toFixed(1) + '" y2="' + Y(0).toFixed(1) + '"/>';
+    svg += '<path class="ar" d="' + area + '"/><path class="ln" d="' + path + '"/>';
+    var lx = X(dayDiff(S.today, m.low.date)), ly = Y(m.low.v);
+    svg += '<circle class="lowdot" cx="' + lx.toFixed(1) + '" cy="' + ly.toFixed(1) + '" r="4"/>';
+    var anchor = lx > W - 70 ? 'end' : lx < 70 ? 'start' : 'middle';
+    anchor = lx > W - 90 ? 'end' : 'start'; var tx = anchor === 'start' ? lx + 9 : lx - 9, ty = Math.min(H - Bm - 3, ly + 4);
+    svg += '<text x="' + tx.toFixed(1) + '" y="' + ty.toFixed(1) + '" text-anchor="' + anchor + '">Low ' + usd(m.low.v) + '</text>';
+    svg += '<text x="' + X(0) + '" y="' + (H - 4) + '">Today</text>';
+    var mid = addDays(S.today, Math.round(days / 2));
+    svg += '<text x="' + X(days / 2).toFixed(1) + '" y="' + (H - 4) + '" text-anchor="middle">' + fmtDay(mid).replace(/^\w+, /, '') + '</text>';
+    svg += '<text x="' + X(days).toFixed(1) + '" y="' + (H - 4) + '" text-anchor="end">' + fmtDay(m.end).replace(/^\w+, /, '') + '</text>';
+    svg += '<text x="' + X(0) + '" y="10">' + usd(max) + '</text>';
+    return svg + '</svg>';
+  }
+  var CASH_ALL = false;
+  function renderCash() {
+    var wrap = $('cash-wrap'); if (!wrap) return;
+    var m = ME === 'daniel' ? cashModel() : null;
+    wrap.hidden = !m; if (!m) return;
+    var c = $('cash'); clear(c);
+    var top = el('div', 'top'), l = el('div');
+    l.appendChild(el('div', 'lbl', 'Chase checking ·2872'));
+    l.appendChild(el('div', 'big', m2(m.checking)));
+    l.appendChild(el('div', 'sub', 'From your balances on ' + asOfText(m.asOf) + (m.changes ? ' + ' + m.changes + ' change' + (m.changes === 1 ? '' : 's') + ' from alert emails' : '')));
+    top.appendChild(l);
+    var o = el('div', 'owed'); o.appendChild(el('div', 'lbl', 'Owed on cards')); o.appendChild(el('b', null, m2(m.owed))); top.appendChild(o);
+    c.appendChild(top);
+    m.cards.forEach(function (k) {
+      var b = el('button', 'ccard'); b.type = 'button'; b.style.setProperty('--cc', k.color);
+      b.appendChild(el('span', 'sw')); b.appendChild(el('span', 'nm', k.label + (k.last4 ? ' ·' + k.last4 : ''))); b.appendChild(el('span', 'amt', m2(k.balance)));
+      var meta = el('span', 'meta');
+      if (k.late) meta.appendChild(el('span', 'warn', 'Was due ' + fmtDay(k.due).replace(/^\w+, /, '') + ': ' + m2(k.dueAmt) + '. '));
+      else if (k.due && k.dueAmt > 0.005) meta.appendChild(document.createTextNode((k.due === S.today ? 'Due today' : 'Due ' + fmtDay(k.due).replace(/^\w+, /, '')) + ': ' + m2(k.dueAmt) + (k.rest > 0.005 ? ' · then ' + m2(k.rest) + ' ' + fmtDay(k.next2).replace(/^\w+, /, '') : '') + '. '));
+      else if (k.due) meta.appendChild(document.createTextNode('Statement paid. Next ' + m2(k.rest) + ' due ' + fmtDay(k.next2).replace(/^\w+, /, '') + '. '));
+      else meta.appendChild(document.createTextNode('No due date yet. '));
+      if (k.unknown) meta.appendChild(el('span', 'q', 'Add the statement amount'));
+      b.appendChild(meta);
+      b.addEventListener('click', function () { openCardEdit(k); });
+      c.appendChild(b);
+    });
+    var row = el('div', 'btnrow');
+    var up = el('button', 'btn', 'Update balances'); up.type = 'button'; up.addEventListener('click', openBalances); row.appendChild(up);
+    var as = el('button', 'btn', 'Payday and bills'); as.type = 'button'; as.addEventListener('click', openCashSettings); row.appendChild(as);
+    c.appendChild(row);
+
+    var f = $('cashflow'); clear(f);
+    var hd = el('div', 'cf-head');
+    var h1 = el('span', m.low.v < 0 ? 'low' : ''); h1.appendChild(document.createTextNode('Lowest ')); h1.appendChild(el('b', null, m2(m.low.v))); h1.appendChild(document.createTextNode(m.low.date === S.today ? ' today' : ' on ' + fmtDay(m.low.date).replace(/^\w+, /, ''))); hd.appendChild(h1);
+    var h2 = el('span'); h2.appendChild(document.createTextNode(fmtDay(m.end).replace(/^\w+, /, '') + ': ')); h2.appendChild(el('b', null, m2(m.endBal))); hd.appendChild(h2);
+    f.appendChild(hd);
+    var ch = el('div'); html(ch, cashChart(m)); f.appendChild(ch);
+    var list = CASH_ALL ? m.events : m.events.slice(0, 8);
+    list.forEach(function (e) {
+      var r = el('div', 'cf-ev');
+      r.appendChild(el('span', 'd', e.date === S.today ? 'Today' : fmtDay(e.date).replace(/^\w+, /, '')));
+      var lb = el('span', 'l', e.label); lb.appendChild(el('small', null, e.sub || '')); r.appendChild(lb);
+      var a = el('span', 'a' + (e.amount > 0 ? ' in' : ''), (e.amount > 0 ? '+' : '') + m2(e.amount)); a.appendChild(el('small', e.after < 0 ? 'neg' : '', '→ ' + m2(e.after))); r.appendChild(a);
+      f.appendChild(r);
+    });
+    if (m.events.length > 8) { var more = el('button', 'linkbtn', CASH_ALL ? 'Show less' : 'All ' + m.events.length + ' steps ›'); more.type = 'button'; more.addEventListener('click', function () { CASH_ALL = !CASH_ALL; renderCash(); }); f.appendChild(more); }
+    if (!m.events.length) f.appendChild(el('div', 'empty', 'Nothing scheduled in the next 60 days.'));
+    f.appendChild(el('div', 'cf-note', 'Assumes each card’s statement balance is paid in full on its due date, then the rest at the next one; paydays every other Friday; mortgage and Amex loan from checking. New spending after today isn’t included. Balances update from alert emails at each refresh; tap Update balances anytime to correct them.'));
+  }
+  function cashHead(body, title, line) {
+    var h = el('div', 'sh-head'); var mm = el('div', 'main'); mm.appendChild(el('h2', null, title)); if (line) mm.appendChild(el('span', null, line)); h.appendChild(mm);
+    var x = el('button', 'x'); x.type = 'button'; x.setAttribute('aria-label', 'Close'); html(x, ICON.x); x.addEventListener('click', closeSheet); h.appendChild(x); body.appendChild(h);
+  }
+  function balSave(patch, msg) {
+    if (!db) { toast('Saving needs the live app.'); return Promise.resolve(); }
+    return db.doc('private_daniel/balances').update(Object.assign({ updated_at: new Date().toISOString(), updated_by: ME }, patch)).then(function () { if (msg) toast(msg); }, function () { toast('Couldn’t save. Try again.'); });
+  }
+  function numField(body, label, value, hint) {
+    var w = el('div', 'fld'); var lb = el('label', null, label); w.appendChild(lb);
+    var i = el('input'); i.type = 'text'; i.inputMode = 'decimal'; i.value = value == null ? '' : String(value); i.setAttribute('aria-label', label); w.appendChild(i);
+    if (hint) w.appendChild(el('span', 'hint', hint));
+    body.appendChild(w); return i;
+  }
+  function numOf(i) { var v = String(i.value).replace(/[$,\s]/g, ''); if (v === '') return null; var n = Number(v); return isNaN(n) ? NaN : n; }
+  function openBalances() {
+    var m = cashModel(); if (!m) return;
+    openSheet(function (body) {
+      cashHead(body, 'Update balances', 'Type what your bank apps show right now. Alert emails adjust them from here.');
+      var ins = {}; ins.checking = numField(body, 'Chase checking ·2872 (available)', m.checking.toFixed(2));
+      m.cards.forEach(function (k) { ins[k.id] = numField(body, k.label + (k.last4 ? ' ·' + k.last4 : '') + ' (current balance)', k.balance.toFixed(2)); });
+      var msg = el('p', 'note', ''); body.appendChild(msg);
+      var go = el('button', 'btn primary', 'Save balances'); go.type = 'button'; body.appendChild(go);
+      go.addEventListener('click', function () {
+        var anchor = { as_of: new Date().toISOString(), by: ME, checking: numOf(ins.checking), cards: {} }, bad = anchor.checking == null || isNaN(anchor.checking);
+        m.cards.forEach(function (k) { var v = numOf(ins[k.id]); if (v == null || isNaN(v)) bad = true; anchor.cards[k.id] = v; });
+        if (bad) { msg.textContent = 'Fill in every balance with a number.'; return; }
+        var sts = {}; m.cards.forEach(function (k) { var s = Object.assign({}, k.st); if (s.balance != null) { s.paid = Math.max(0, Math.round((Number(s.balance) - Math.min(k.dueAmt, Math.max(0, anchor.cards[k.id]))) * 100) / 100); } sts[k.id] = s; });
+        balSave({ anchor: anchor, statements: sts }, 'Balances saved').then(closeSheet);
+      });
+    }, 'Update balances');
+  }
+  function openCardEdit(k) {
+    openSheet(function (body) {
+      cashHead(body, k.label + (k.last4 ? ' ·' + k.last4 : ''), 'Balance now ' + m2(k.balance) + '. The statement figures decide what the simulation pays on the due date.');
+      var s = k.st || {};
+      var ib = numField(body, 'Statement balance', s.balance == null ? '' : s.balance, 'From the latest statement. Leave empty if you don’t know it; the whole balance is then assumed due.');
+      var ip = numField(body, 'Already paid toward it', s.paid || 0);
+      var wd = el('div', 'fld'); wd.appendChild(el('label', null, 'Due date')); var idue = el('input'); idue.type = 'date'; idue.value = s.due || ''; wd.appendChild(idue); body.appendChild(wd);
+      var msg = el('p', 'note', ''); body.appendChild(msg);
+      var go = el('button', 'btn primary', 'Save'); go.type = 'button'; body.appendChild(go);
+      go.addEventListener('click', function () {
+        var b = numOf(ib), pd = numOf(ip) || 0;
+        if ((b != null && isNaN(b)) || isNaN(pd)) { msg.textContent = 'Use numbers only.'; return; }
+        var ns = Object.assign({}, s, { balance: b, paid: pd, due: idue.value || null, source: 'you' });
+        var patch = { statements: {} }; patch.statements[k.id] = ns;
+        balSave(patch, 'Saved').then(closeSheet);
+      });
+    }, k.label);
+  }
+  function openCashSettings() {
+    var B = S.bal || {}, p = B.payday || {};
+    openSheet(function (body) {
+      cashHead(body, 'Payday and bills', 'What goes into and out of checking besides card payments.');
+      var row = el('div', 'fld2'); body.appendChild(row);
+      var ia = numField(row, 'Pay (each deposit)', p.amount);
+      var wn = el('div', 'fld'); wn.appendChild(el('label', null, 'Next payday')); var inext = el('input'); inext.type = 'date'; inext.value = p.next || ''; wn.appendChild(inext); row.appendChild(wn);
+      var ie = numField(body, 'Days between paydays', p.every_days || 14, 'Every other Friday = 14.');
+      var bills = (B.bills || []).map(function (b) { return Object.assign({}, b); }), bins = [];
+      bills.forEach(function (b) {
+        var r2 = el('div', 'fld2'); body.appendChild(r2);
+        bins.push({ b: b, amt: numField(r2, b.label, b.amount), day: numField(r2, 'Day of month', b.day) });
+      });
+      var msg = el('p', 'note', ''); body.appendChild(msg);
+      var go = el('button', 'btn primary', 'Save'); go.type = 'button'; body.appendChild(go);
+      go.addEventListener('click', function () {
+        var amt = numOf(ia), ev = numOf(ie);
+        if (amt == null || isNaN(amt) || !inext.value || !ev || isNaN(ev)) { msg.textContent = 'Fill in the pay amount, next payday and days between.'; return; }
+        var nb = bins.map(function (x) { var a = numOf(x.amt), d = numOf(x.day); return Object.assign({}, x.b, { amount: a == null || isNaN(a) ? x.b.amount : a, day: d == null || isNaN(d) ? x.b.day : Math.max(1, Math.min(31, Math.round(d))) }); });
+        balSave({ payday: Object.assign({}, p, { amount: amt, next: inext.value, every_days: Math.round(ev) }), bills: nb }, 'Saved').then(closeSheet);
+      });
+    }, 'Payday and bills');
+  }
   function meter(spent, target, frac, status, showPace, thin) {
     var m = el('div', 'meter' + (thin ? ' thin' : ''));
     var i = el('i', status === 'over' ? 'over' : status === 'ahead' ? 'warn' : ''); i.style.width = (target ? Math.min(100, spent / target * 100) : (spent > 0 ? 100 : 0)) + '%'; m.appendChild(i);
@@ -2239,7 +2507,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     if (autoEstimate) estimateTrip(id);
   }
 
-  function render() { renderHeader(); renderHero(); renderDecide(); renderToday(); renderWeek(); renderGlance(); renderMoney(); renderMore(); renderTravel(); renderKids(); renderKitchen(); }
+  function render() { renderHeader(); renderHero(); renderDecide(); renderToday(); renderWeek(); renderGlance(); renderMoney(); renderMore(); renderTravel(); renderKids(); renderKitchen(); renderCash(); }
 
   /* ---------- Writes (shared state) ---------- */
   function claim(k, choice, f) {
@@ -3353,6 +3621,7 @@ var AIRPORT_COUNTRIES = {"EG": "Egypt", "DZ": "Algeria", "DK": "Denmark", "AE": 
     subscribeDb();
     /* Calendar and card alerts are copied in by Colibrí's scheduled tasks. */
     db.doc('calendar/family').onSnapshot(function (x) { if (x.exists) { var d = x.data(); S.family.raw = d.events || []; S.family.at = Date.parse(d.at) || Date.now(); render(); } });
+    if (ME === 'daniel') { db.doc('private_daniel/balances').onSnapshot(function (x) { S.bal = x.exists ? x.data() : null; renderCash(); }, function () {}); db.doc('private_daniel/balances_feed').onSnapshot(function (x) { S.balFeed = x.exists ? x.data() : null; renderCash(); }, function () {}); }
     if (ME === 'daniel') db.doc('private_daniel/calendar').onSnapshot(function (x) { if (x.exists) { var d = x.data(); S.mine.raw = d.events || []; S.mine.at = Date.parse(d.at) || Date.now(); render(); } });
     db.doc('mail/alerts').onSnapshot(function (x) { if (x.exists) { S.mail.alerts = alertsFromPayload(x.data().payload || { threads: [] }); render(); } });
     /* The morning briefing is written by Colibrí's scheduled task: Daniel's includes his own calendar, Andrea's only the Family one. */
